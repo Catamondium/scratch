@@ -1,6 +1,6 @@
 // constexpr compile-time constant signature f(x)
 constexpr unsigned int factorial(unsigned int N) {
-	return (N != 0) ? N*factorial(N-1) : 1;
+	return (N == 0) ? 1 : N*factorial(N-1);
 }
 
 int main() {
