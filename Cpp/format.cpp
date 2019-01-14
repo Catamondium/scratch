@@ -8,8 +8,13 @@ struct fmt {
 	template<class... Ts> std::string operator()(Ts...);
 };
 
+fmt operator""_fmt(const char * str, std::size_t)
+{
+	return {str};
+}
+
 template<class... Ts>
-inline std::string fmt::format(Ts... args)
+inline std::string fmt::operator()(Ts... args)
 {
 	char *buf;
 	asprintf(&buf, str.c_str(), args...);
@@ -19,20 +24,8 @@ inline std::string fmt::format(Ts... args)
 	return ret;
 }
 
-template<class... Ts>
-inline std::string fmt::operator()(Ts... args)
-{
-	return format(args...);
-}
-
-fmt operator"" _fmt(const char * str, std::size_t)
-{
-	return {str};
-}
 
 int main()
 {
-	fmt s = "ass"_fmt;
-	std::cout << ".format\t\t" << "%d"_fmt.format(155) << std::endl;
-	std::cout << "operator()\t" << "%05d"_fmt(5) << std::endl;
+	std::cout << "_fmt:\t%05d"_fmt(5) << std::endl;
 }
