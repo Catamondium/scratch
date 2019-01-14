@@ -1,5 +1,5 @@
-#include <iostream>
 #include <stdio.h>  // asprintf
+#include <iostream>
 
 struct fmt {
 	std::string str;
@@ -17,7 +17,10 @@ template<class... Ts>
 inline std::string fmt::operator()(Ts... args)
 {
 	char *buf;
-	asprintf(&buf, str.c_str(), args...);
+	int err;
+	do {
+		err = asprintf(&buf, str.c_str(), args...);
+	} while(err == -1);
 	std::string ret(buf);
 	free(buf);
 
