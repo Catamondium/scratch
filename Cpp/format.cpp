@@ -4,8 +4,10 @@
 
 struct fmt {
 	std::string str;
-	fmt(const std::string &str) noexcept: str(str) {};
-	fmt(const char *c_str) noexcept: str(c_str) {};
+	template<class T> fmt(const T &str) noexcept: str(str)
+	{
+		static_assert(std::is_convertible<T, std::string>::value, "Not convertible");
+	};
 	template<class... Ts> std::string operator()(Ts...) noexcept;
 	template<class T> fmt& operator+=(const T&) noexcept;
 	template<class T> fmt operator+(const T&) const noexcept;
@@ -15,7 +17,6 @@ struct fmt {
 template<class T>
 fmt& fmt::operator+=(const T &rhs) noexcept
 {
-	static_assert(std::is_convertible<T, fmt>::value, "Not convertible");
 	this->str += fmt(rhs).str;
 	return *this;
 }
@@ -23,7 +24,6 @@ fmt& fmt::operator+=(const T &rhs) noexcept
 template<class T>
 fmt fmt::operator+(const T &rhs) const noexcept
 {
-	static_assert(std::is_convertible<T, fmt>::value, "Not convertible");
 	return fmt(*this) += fmt(rhs);
 }
 
