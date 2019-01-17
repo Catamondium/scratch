@@ -44,42 +44,19 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 
 inline std::string fmt::operator()() noexcept
 {
-	std::stringstream out;
-	out << str;
-	return out.str();
-}
-
-template<class T>
-void print(std::stringstream &out, T val)
-{
-	out << val;
-}
-
-template<>
-void print(std::stringstream &out, bool val)
-{
-	out << std::boolalpha;
-
-	out << val;
-	out.unsetf(std::ios_base::boolalpha);
-
-	out << std::noboolalpha;
-	// still won't clear.
+	return str;
 }
 
 template<class T, class... Ts>
 inline std::string fmt::operator()(T val, Ts... args) noexcept
 {
 	std::stringstream out;
-	for(auto it = str.begin(); it != str.end(); ) {
+	for(auto it = str.begin(); it != str.end(); it++) {
 		if(*it == '%') {
-			print(out, val); // branching step
-			it++;
+			out << val;
 			continue;
 		}
-
 		out << *it;
-		it++;
 	}
 	return out.str();
 }
