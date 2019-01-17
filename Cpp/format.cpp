@@ -2,16 +2,25 @@
 #include <stdio.h>     // asprintf
 #include <type_traits> // is_convertible
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <ios>
 
 template<class T>
 concept bool Stringable = requires(T a) {
 	{std::string(a)} -> std::string;
 };
 
+/*template<class T>
+concept bool Streamable = requires(T a, std::ostream s) {
+	{s << a};
+};*/
+
 struct fmt {
 	std::string str;
 	fmt(const Stringable &str) noexcept: str(str){};
-	template<class... Ts> std::string operator()(Ts...) noexcept;
+	inline std::string operator()() noexcept;
+	template<class T, class... Ts> std::string operator()(T, Ts...) noexcept;
 	fmt& operator+=(const Stringable&) noexcept;
 	fmt operator+(const Stringable&) const noexcept;
 	operator std::string() const { return str; }
@@ -33,18 +42,46 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 	return {str};
 }
 
-template<class... Ts>
-inline std::string fmt::operator()(Ts... args) noexcept
+inline std::string fmt::operator()() noexcept
 {
-	char *buf;
-	int err;
-	do {
-		err = asprintf(&buf, str.c_str(), args...);
-	} while(err == -1);
-	std::string ret(buf);
-	free(buf);
+	std::stringstream out;
+	out << str;
+	return out.str();
+}
 
-	return ret;
+template<class T>
+void print(std::stringstream &out, T val)
+{
+	out << val;
+}
+
+template<>
+void print(std::stringstream &out, bool val)
+{
+	out << std::boolalpha;
+
+	out << val;
+	out.unsetf(std::ios_base::boolalpha);
+
+	out << std::noboolalpha;
+	// still won't clear.
+}
+
+template<class T, class... Ts>
+inline std::string fmt::operator()(T val, Ts... args) noexcept
+{
+	std::stringstream out;
+	for(auto it = str.begin(); it != str.end(); ) {
+		if(*it == '%') {
+			print(out, val); // branching step
+			it++;
+			continue;
+		}
+
+		out << *it;
+		it++;
+	}
+	return out.str();
 }
 
 
@@ -54,7 +91,8 @@ int main()
 	fmt failtest{112}; // intentional compile error with -DFAIL
 #endif
 
-	std::cout << "_fmt: %05d"_fmt(5) << std::endl;
+	std::cout << "_fmt: %"_fmt(5) << std::endl;
+	std::cout << "bol: % %"_fmt(true, 1) << std::endl; // issue, prints true true
 
 	fmt addtest = "Ass"; // const char* constructible
 	addtest += "Bass";   // Template allows all types, assert requires constructible/convertible
