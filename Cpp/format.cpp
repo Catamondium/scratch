@@ -25,7 +25,7 @@ fmt& fmt::operator+=(const Stringable &rhs) noexcept
 
 fmt fmt::operator+(const Stringable &rhs) const noexcept
 {
-	return std::string(*this) += fmt(rhs);
+	return fmt(*this) += std::string(rhs);
 }
 
 fmt operator""_fmt(const char * str, std::size_t) noexcept
