@@ -4,12 +4,9 @@
 #include <iostream>
 
 template<class T>
-concept bool Stringable() // would prefer Stringable = require form :(
-{
-	return requires(T a) {
-		{std::string(a)} -> std::string;
-	};
-}
+concept bool Stringable = requires(T a) {
+	{std::string(a)} -> std::string;
+};
 
 struct fmt {
 	std::string str;

@@ -3,21 +3,16 @@
 
 // wikipedia example
 
-#include <iostream>
-
 #ifdef FAILTEST // for cleaner asm
 class NotComp {
 }; // class lacking in equality/inequality operator
 #endif
 
 template<class T>
-concept bool EqualityComparable()
-{
-	return requires(T a, T b) {
+concept bool EqualityComparable = requires(T a, T b) {
 		{a == b} -> bool;
 		{a != b} -> bool;
 	};
-}
 
 // Templated for EqualityComparable types
 void f(const EqualityComparable&) {} // do nothing
