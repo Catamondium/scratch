@@ -1,28 +1,32 @@
+// g++-8 -std=c++2a -fconcepts
 #include <stdio.h>     // asprintf
 #include <type_traits> // is_convertible
 #include <iostream>
 
+template<class T>
+concept bool Stringable() // would prefer Stringable = require form :(
+{
+	return requires(T a) {
+		{std::string(a)} -> std::string;
+	};
+}
+
 struct fmt {
 	std::string str;
-	template<class T> fmt(const T &str) noexcept: str(str)
-	{
-		static_assert(std::is_convertible<T, std::string>::value, "Not convertible");
-	};
+	fmt(const Stringable &str) noexcept: str(str){};
 	template<class... Ts> std::string operator()(Ts...) noexcept;
-	template<class T> fmt& operator+=(const T&) noexcept;
-	template<class T> fmt operator+(const T&) const noexcept;
+	fmt& operator+=(const Stringable&) noexcept;
+	fmt operator+(const Stringable&) const noexcept;
 	operator std::string() const { return str; }
 };
 
-template<class T>
-fmt& fmt::operator+=(const T &rhs) noexcept
+fmt& fmt::operator+=(const Stringable &rhs) noexcept
 {
 	this->str += fmt(rhs).str;
 	return *this;
 }
 
-template<class T>
-fmt fmt::operator+(const T &rhs) const noexcept
+fmt fmt::operator+(const Stringable &rhs) const noexcept
 {
 	return fmt(*this) += fmt(rhs);
 }
@@ -49,6 +53,10 @@ inline std::string fmt::operator()(Ts... args) noexcept
 
 int main()
 {
+#ifdef FAIL
+	fmt failtest{112}; // intentional compile error with -DFAIL
+#endif
+
 	std::cout << "_fmt: %05d"_fmt(5) << std::endl;
 
 	fmt addtest = "Ass"; // const char* constructible
