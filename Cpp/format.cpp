@@ -19,13 +19,13 @@ struct fmt {
 
 fmt& fmt::operator+=(const Stringable &rhs) noexcept
 {
-	this->str += fmt(rhs).str;
+	this->str += std::string(rhs);
 	return *this;
 }
 
 fmt fmt::operator+(const Stringable &rhs) const noexcept
 {
-	return fmt(*this) += fmt(rhs);
+	return std::string(*this) += fmt(rhs);
 }
 
 fmt operator""_fmt(const char * str, std::size_t) noexcept
