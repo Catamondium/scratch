@@ -5,12 +5,16 @@
 #include <iomanip>
 
 #ifdef FAIL
-class noStream {};
+class noStream {
+int x;
+};
+std::ostream& operator<<(std::ostream &s, noStream &a) = delete;
+// doesn't fail, unusually, extracts ''
 
-void /*invalid Streamable*/ operator<<(std::ostream &s, noStream a)
-{
-	// noop
-}
+//void /*invalid Streamable*/ operator<<(std::ostream &s, noStream a)
+//{
+//	// noop
+//}
 #endif
 
 template<class T>
@@ -19,8 +23,8 @@ concept bool Stringable = requires(T a) {
 };
 
 template<class T>
-concept bool Streamable = requires(T a, std::ostream s) {
-	{s << a} -> std::ostream;
+concept bool Streamable = requires(T &in, std::ostream &out) {
+	{operator<<(out, in)} -> std::ostream&;
 };
 
 struct fmt {
@@ -126,7 +130,7 @@ inline std::string fmt::operator()(T val, Ts... args) noexcept
 int main()
 {
 #ifdef FAIL
-	fmt failtest{112};
+//	fmt failtest{112};
 	std::cout << "%"_fmt(noStream{}) << std::endl;
 #endif
 
