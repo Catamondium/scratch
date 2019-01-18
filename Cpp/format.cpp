@@ -10,18 +10,18 @@ concept bool Stringable = requires(T a) {
 };
 
 template<class T>
-concept bool RefStreamable = requires(T &in, std::ostream &out) {
+concept bool valStreamable = requires(T in, std::ostream &out) {
 	{operator<<(out, in)} -> std::ostream&;
 };
 
 template<class T>
-concept bool valStreamable = requires(T in, std::ostream &out) {
-	{operator<<(out, in)} -> std::ostream;
+concept bool refStreamable = requires(T in, std::ostream &out) {
+	{operator<<(out, in)} -> std::ostream&;
 };
 
 template<class T>
-concept bool Streamable = requires {
-	RefStreamable<T> || valStreamable<T>;
+concept bool Streamable = requires() {
+	refStreamable || valStreamable;
 };
 
 struct fmt {
@@ -135,8 +135,11 @@ static_assert(! Stringable<int>, "Ints are strings!");
 
 int main()
 {
+	// operator<<(T, stream)
 	std::cout << "_fmt: %"_fmt(5) << std::endl;
 	std::cout << "bol: % %"_fmt(true, false, 555) << std::endl;
+	// operator<<(T&, stream)
+	std::cout << "str: %"_fmt(std::string("string")) << std::endl;
 	std::cout << "escaped: %% continued"_fmt(44444) << std::endl;
 
 	// Stringable, accepts any T -> std::string
