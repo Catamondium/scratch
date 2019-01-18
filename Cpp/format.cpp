@@ -15,13 +15,13 @@ concept bool valStreamable = requires(T in, std::ostream &out) {
 };
 
 template<class T>
-concept bool refStreamable = requires(T in, std::ostream &out) {
+concept bool refStreamable = requires(T &in, std::ostream &out) {
 	{operator<<(out, in)} -> std::ostream&;
 };
 
 template<class T>
 concept bool Streamable = requires() {
-	refStreamable || valStreamable;
+	refStreamable<T> || valStreamable<T>;
 };
 
 struct fmt {
