@@ -11,10 +11,10 @@ concept bool Stringable = requires(T a) {
 	{std::string(a)} -> std::string;
 };
 
-/*template<class T>
+template<class T>
 concept bool Streamable = requires(T a, std::ostream s) {
-	{s << a};
-};*/
+	{s << a} -> std::ostream;
+};
 
 struct fmt {
 	std::string str;
@@ -42,6 +42,50 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 	return {str};
 }
 
+namespace format { // Formatting endpoints for type T
+	// T = generic
+	template<class T> // compiler prefers bool when Streamable
+	std::string dispatch(T val, auto &start, auto &end)
+	{
+		std::stringstream ss;
+		ss << val; // just require regular ostream << T def
+		++start; // iter presented with '%' char
+		return ss.str();
+	}
+
+	// T = bool
+	std::string dispatch(bool val, auto &start, auto &end)
+	{
+		std::stringstream ss;
+		ss << std::boolalpha;
+		ss << val;
+		++start;
+		return ss.str();
+	}
+}
+
+void print(std::stringstream &out, auto start, auto end)
+{
+	for(auto it = start; it != end; ++it) {
+		out << *it;
+	}
+}
+
+template<class T, class... Ts>
+void print(std::stringstream &out, auto start, auto end, T val, Ts... args)
+{
+	for(auto it = start; it != end; /*++it*/) {
+		if(*it == '%') {
+			out << format::dispatch(val, it, end);
+			print(out, it, end, args...); // enumerate recursively
+			break;
+		}
+		out << *it;
+		++it;
+	}
+}
+
+
 inline std::string fmt::operator()() noexcept
 {
 	return str;
@@ -51,13 +95,7 @@ template<class T, class... Ts>
 inline std::string fmt::operator()(T val, Ts... args) noexcept
 {
 	std::stringstream out;
-	for(auto it = str.begin(); it != str.end(); it++) {
-		if(*it == '%') {
-			out << val;
-			continue;
-		}
-		out << *it;
-	}
+	print(out, str.begin(), str.end(), val, args...);
 	return out.str();
 }
 
@@ -69,7 +107,7 @@ int main()
 #endif
 
 	std::cout << "_fmt: %"_fmt(5) << std::endl;
-	std::cout << "bol: % %"_fmt(true, 1) << std::endl; // issue, prints true true
+	std::cout << "bol: % %"_fmt(true, false, 555) << std::endl;
 
 	fmt addtest = "Ass"; // const char* constructible
 	addtest += "Bass";   // Template allows all types, assert requires constructible/convertible
