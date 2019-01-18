@@ -57,9 +57,7 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 
 namespace format { // Formatting endpoints for type T
 	// T = Streamable generic
-	template<class T>
-		requires Streamable<T>
-	std::string dispatch(T val, auto &start, auto &end)
+	std::string dispatch(Streamable val, auto &start, auto &end)
 	{
 		std::stringstream ss;
 		ss << val; // just require regular ostream << T def
