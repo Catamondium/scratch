@@ -20,7 +20,9 @@ concept bool valStreamable = requires(T in, std::ostream &out) {
 };
 
 template<class T>
-concept bool Streamable = requires {{RefStreamable<T> || valStreamable<T>};};
+concept bool Streamable = requires {
+	RefStreamable<T> || valStreamable<T>;
+};
 
 struct fmt {
 	std::string str;
