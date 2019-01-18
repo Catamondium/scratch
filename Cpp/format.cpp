@@ -1,10 +1,17 @@
 // g++-8 -std=c++2a -fconcepts
-#include <stdio.h>     // asprintf
-#include <type_traits> // is_convertible
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include <iomanip>
-#include <ios>
+
+#ifdef FAIL
+class noStream {};
+
+void /*invalid Streamable*/ operator<<(std::ostream &s, noStream a)
+{
+	// noop
+}
+#endif
 
 template<class T>
 concept bool Stringable = requires(T a) {
@@ -43,8 +50,8 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 }
 
 namespace format { // Formatting endpoints for type T
-	// T = generic
-	template<class T> // compiler prefers bool when Streamable
+	// T = Streamable generic
+	template<class T>
 	std::string dispatch(T val, auto &start, auto &end)
 	{
 		std::stringstream ss;
@@ -62,9 +69,25 @@ namespace format { // Formatting endpoints for type T
 		++start;
 		return ss.str();
 	}
+
+	// T == std::vector<X>
+	template<class X>
+	std::string dispatch(std::vector<X> vec, auto &start, auto &end)
+	{
+		++start;
+		if(vec.size() == 0)
+			return "[]";
+		else {
+			std::string ret = "[";
+			for(X &val : vec) {
+				ret += "%"_fmt(val) + ", ";
+			}
+			return ret.substr(0, ret.size()-2) + "]";
+		}
+	}
 }
 
-void print(std::stringstream &out, auto start, auto end)
+void print(std::stringstream &out, auto &start, auto &end)
 {
 	for(auto it = start; it != end; ++it) {
 		out << *it;
@@ -72,7 +95,7 @@ void print(std::stringstream &out, auto start, auto end)
 }
 
 template<class T, class... Ts>
-void print(std::stringstream &out, auto start, auto end, T val, Ts... args)
+void print(std::stringstream &out, auto start, auto end, T &val, Ts&... args)
 {
 	for(auto it = start; it != end; /*++it*/) {
 		if(*it == '%') {
@@ -103,7 +126,8 @@ inline std::string fmt::operator()(T val, Ts... args) noexcept
 int main()
 {
 #ifdef FAIL
-	fmt failtest{112}; // intentional compile error with -DFAIL
+	fmt failtest{112};
+	std::cout << "%"_fmt(noStream{}) << std::endl;
 #endif
 
 	std::cout << "_fmt: %"_fmt(5) << std::endl;
@@ -112,4 +136,7 @@ int main()
 	fmt addtest = "Ass"; // const char* constructible
 	addtest += "Bass";   // Template allows all types, assert requires constructible/convertible
 	std::cout << "addtest: " << addtest() << std::endl;
+
+	std::vector<int> ints = {0, 1, 2, 3, 4, 5};
+	std::cout << "%"_fmt(ints) << std::endl;
 }
