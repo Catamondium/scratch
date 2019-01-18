@@ -9,12 +9,6 @@ class noStream {
 int x;
 };
 std::ostream& operator<<(std::ostream &s, noStream &a) = delete;
-// doesn't fail, unusually, extracts ''
-
-//void /*invalid Streamable*/ operator<<(std::ostream &s, noStream a)
-//{
-//	// noop
-//}
 #endif
 
 template<class T>
@@ -23,9 +17,17 @@ concept bool Stringable = requires(T a) {
 };
 
 template<class T>
-concept bool Streamable = requires(T &in, std::ostream &out) {
+concept bool RefStreamable = requires(T &in, std::ostream &out) {
 	{operator<<(out, in)} -> std::ostream&;
 };
+
+template<class T>
+concept bool valStreamable = requires(T in, std::ostream &out) {
+	{operator<<(out, in)} -> std::ostream; // passed by value?
+};
+
+template<class T>
+concept bool Streamable = requires {{RefStreamable<T> || valStreamable<T>};};
 
 struct fmt {
 	std::string str;
@@ -56,6 +58,7 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 namespace format { // Formatting endpoints for type T
 	// T = Streamable generic
 	template<class T>
+		requires Streamable<T>
 	std::string dispatch(T val, auto &start, auto &end)
 	{
 		std::stringstream ss;
@@ -102,10 +105,12 @@ template<class T, class... Ts>
 void print(std::stringstream &out, auto start, auto end, T &val, Ts&... args)
 {
 	for(auto it = start; it != end; /*++it*/) {
-		if(*it == '%') {
+		if(*it == '%' && *(it+1) != '%') {
 			out << format::dispatch(val, it, end);
 			print(out, it, end, args...); // enumerate recursively
 			break;
+		} else if(*it == '%' && *(it+1) == '%') {
+			it++;
 		}
 		out << *it;
 		++it;
@@ -136,6 +141,7 @@ int main()
 
 	std::cout << "_fmt: %"_fmt(5) << std::endl;
 	std::cout << "bol: % %"_fmt(true, false, 555) << std::endl;
+	std::cout << "escaped: %% continued"_fmt(44444) << std::endl;
 
 	fmt addtest = "Ass"; // const char* constructible
 	addtest += "Bass";   // Template allows all types, assert requires constructible/convertible
