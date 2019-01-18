@@ -4,13 +4,6 @@
 #include <vector>
 #include <iomanip>
 
-#ifdef FAIL
-class noStream {
-int x;
-};
-std::ostream& operator<<(std::ostream &s, noStream &a) = delete;
-#endif
-
 template<class T>
 concept bool Stringable = requires(T a) {
 	{std::string(a)} -> std::string;
@@ -129,12 +122,18 @@ inline std::string fmt::operator()(T val, Ts... args) noexcept
 	return out.str();
 }
 
+#ifdef FAIL
+class noStream {
+int x;
+};
+std::ostream& operator<<(std::ostream &s, noStream &a) = delete;
+#endif
 
 int main()
 {
+	static_assert(! Stringable<int>, "Ints are strings!");
 #ifdef FAIL
-//	fmt failtest{112};
-	std::cout << "%"_fmt(noStream{}) << std::endl;
+	static_assert(! Streamable<noStream>, "Function deletion is weird");
 #endif
 
 	std::cout << "_fmt: %"_fmt(5) << std::endl;
