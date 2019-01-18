@@ -16,7 +16,7 @@ concept bool RefStreamable = requires(T &in, std::ostream &out) {
 
 template<class T>
 concept bool valStreamable = requires(T in, std::ostream &out) {
-	{operator<<(out, in)} -> std::ostream; // passed by value?
+	{operator<<(out, in)} -> std::ostream;
 };
 
 template<class T>
@@ -127,21 +127,19 @@ class noStream {
 int x;
 };
 std::ostream& operator<<(std::ostream &s, noStream &a) = delete;
+static_assert(! Streamable<noStream>, "Function deletion is weird");
 #endif
+static_assert(! Stringable<int>, "Ints are strings!");
 
 int main()
 {
-	static_assert(! Stringable<int>, "Ints are strings!");
-#ifdef FAIL
-	static_assert(! Streamable<noStream>, "Function deletion is weird");
-#endif
-
 	std::cout << "_fmt: %"_fmt(5) << std::endl;
 	std::cout << "bol: % %"_fmt(true, false, 555) << std::endl;
 	std::cout << "escaped: %% continued"_fmt(44444) << std::endl;
 
-	fmt addtest = "Ass"; // const char* constructible
-	addtest += "Bass";   // Template allows all types, assert requires constructible/convertible
+	// Stringable, accepts any T -> std::string
+	fmt addtest = "Ass";
+	addtest += "Bass";
 	std::cout << "addtest: " << addtest() << std::endl;
 
 	std::vector<int> ints = {0, 1, 2, 3, 4, 5};
