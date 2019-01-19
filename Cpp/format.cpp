@@ -103,9 +103,8 @@ void print(std::stringstream &out, auto start, auto end, T &val, Ts&... args)
 				out << format::dispatch(val, it, end);
 				print(out, it, end, args...); // enumerate recursively
 				break;
-			} else {
+			} else
 				++it;
-			}
 		}
 		out << *it;
 		++it;
