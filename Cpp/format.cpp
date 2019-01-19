@@ -97,13 +97,15 @@ void print(std::stringstream &out, auto &start, auto &end)
 template<class T, class... Ts>
 void print(std::stringstream &out, auto start, auto end, T &val, Ts&... args)
 {
-	for(auto it = start; it != end; /*++it*/) {
-		if(*it == '%' && *(it+1) != '%') {
-			out << format::dispatch(val, it, end);
-			print(out, it, end, args...); // enumerate recursively
-			break;
-		} else if(*it == '%' && *(it+1) == '%') {
-			it++;
+	for(auto it = start; it != end; ) {
+		if(*it == '%') {
+			if(*(it+1) != '%') {
+				out << format::dispatch(val, it, end);
+				print(out, it, end, args...); // enumerate recursively
+				break;
+			} else {
+				++it;
+			}
 		}
 		out << *it;
 		++it;
