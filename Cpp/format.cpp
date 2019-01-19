@@ -8,21 +8,7 @@ template<class T>
 concept bool Stringable = requires(T a) {
 	{std::string(a)} -> std::string;
 };
-
-template<class T>
-concept bool valStreamable = requires(T in, std::ostream &out) {
-	{operator<<(out, in)} -> std::ostream&;
-};
-
-template<class T>
-concept bool refStreamable = requires(T &in, std::ostream &out) {
-	{operator<<(out, in)} -> std::ostream&;
-};
-
-template<class T>
-concept bool Streamable = requires() {
-	refStreamable<T> || valStreamable<T>;
-};
+static_assert(! Stringable<int>, "Ints are strings!");
 
 struct fmt {
 	std::string str;
@@ -51,12 +37,13 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 }
 
 namespace format { // Formatting endpoints for type T
-	// T = Streamable generic
-	std::string dispatch(Streamable val, auto &start, auto &end)
+	// T = generic
+	template<class T>
+	std::string dispatch(T val, auto &start, auto &end)
 	{
 		std::stringstream ss;
 		ss << val; // just require regular ostream << T def
-		++start; // iter presented with '%' char
+		++start;   // iter presented with '%' char
 		return ss.str();
 	}
 
@@ -125,21 +112,11 @@ inline std::string fmt::operator()(T val, Ts... args) noexcept
 	return out.str();
 }
 
-#ifdef FAIL
-class noStream {
-int x;
-};
-std::ostream& operator<<(std::ostream &s, noStream &a) = delete;
-static_assert(! Streamable<noStream>, "Function deletion is weird");
-#endif
-static_assert(! Stringable<int>, "Ints are strings!");
 
 int main()
 {
-	// operator<<(T, stream)
 	std::cout << "_fmt: %"_fmt(5) << std::endl;
 	std::cout << "bol: % %"_fmt(true, false, 555) << std::endl;
-	// operator<<(T&, stream)
 	std::cout << "str: %"_fmt(std::string("string")) << std::endl;
 	std::cout << "escaped: %% continued"_fmt(44444) << std::endl;
 
