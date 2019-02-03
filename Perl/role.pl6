@@ -8,6 +8,7 @@ role Unitish[$unit= fail ("SI quantifier must be provided")] {
 	method gist {
 		# Scale prefixes, optimally defined in conversion table, but off topic
 		given self {
+			# matches down from here, hence unidirectional boolexpr
 			when $_ < 1e0 { return self * 1e+3 ~ 'm' ~ $.SI-unit }
 			when $_ < 1e3 { return self ~ $.SI-unit }
 			when $_ < 1e6 { return self * 1e-3 ~ 'k' ~ $.SI-unit }
