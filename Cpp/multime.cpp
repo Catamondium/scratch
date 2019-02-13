@@ -5,7 +5,7 @@
 #include <utility>
 
 
-typedef std::pair<int, std::string> Runner;
+using Runner = std::pair<int, std::string> ;
 std::vector<Runner> runners = 
 {
 	{5,  "Bob"},
