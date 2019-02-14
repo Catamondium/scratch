@@ -12,9 +12,9 @@ using timebase = std::chrono::seconds;
 using Runner = std::pair<int, std::string> ;
 std::vector<Runner> runners = 
 {
+	{15, "Willy"},
 	{5,  "Bob"},
-	{5, "Emma"},
-	{15, "Willy"}
+	{5, "Emma"}
 };
 
 std::vector<std::thread> pool;
@@ -33,12 +33,14 @@ void time(Runner run)
 
 int main()
 {
-	std::thread Willy([](auto a){time(a);}, runners[2]);
-	std::thread Bob([](auto a){time(a);}, runners[0]);
-	std::thread Emma([](auto a){time(a);}, runners[1]);
+	std::vector<std::thread> threads;
+	for(auto &r : runners)
+		threads.push_back(std::thread(
+					[](auto a){time(a);}, // fails callable otherwise
+					r));
 
-	Bob.join();
-	Emma.join();
-	Willy.join();
+	for(auto &t : threads)
+		t.join();
+
 	std::cout << "main termination" << std::endl;
 }
