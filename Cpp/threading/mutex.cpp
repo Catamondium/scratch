@@ -16,8 +16,6 @@ std::vector<Runner> runners =
 	{5, "Emma"}
 };
 
-std::vector<std::thread> pool;
-
 void time(Runner run)
 {
 	auto before = std::chrono::system_clock::now();
