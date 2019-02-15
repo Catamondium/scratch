@@ -1,7 +1,7 @@
 #include <mutex>
 #include <condition_variable>
 
-// bounded semaphore ala Python
+// bounded semaphore
 class Semaphore {
 	public:
 		Semaphore(int res = 0) : res(res), init(res) {};
@@ -26,4 +26,15 @@ class Semaphore {
 		std::mutex mtx;
 		std::condition_variable cv;
 		int res, init;
+};
+
+// https://stackoverflow.com/a/26624538/9664844
+class ScopedSemaphore { // RAII wrapper
+	public:
+		ScopedSemaphore(Semaphore &sem) : sem(sem) {sem.wait();};
+		ScopedSemaphore(const ScopedSemaphore&) = delete;
+		~ScopedSemaphore() {sem.notify();};
+		ScopedSemaphore& operator=(const ScopedSemaphore&) = delete;
+	private:
+		Semaphore &sem;
 };
