@@ -8,7 +8,6 @@
 
 std::mutex cout_rights; // reserve std::cout
 
-using timebase = std::chrono::seconds;
 using Runner = std::pair<int, std::string> ;
 std::vector<Runner> runners = 
 {
@@ -24,7 +23,7 @@ void time(Runner run)
 	auto before = std::chrono::system_clock::now();
 	std::this_thread::sleep_for(std::chrono::seconds(run.first));
 
-	// Aquire printing ability
+	// Acquire printing ability
 	std::lock_guard<std::mutex> guard(cout_rights);
 	auto elapsed = std::chrono::system_clock::now() - before;
 	std::cout << "TERM:\t" << run.second
