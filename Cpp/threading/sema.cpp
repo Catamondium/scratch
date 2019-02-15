@@ -4,13 +4,13 @@
 // bounded semaphore
 class Semaphore {
 	public:
-		Semaphore(int res = 0) : res(res), init(res) {};
+		Semaphore(unsigned int res = 0) : res(res), init(res) {};
 
 		inline void notify()
 		{
 			std::unique_lock<std::mutex> lck(mtx);
 			++res;
-			if(res > init) throw std::logic_error("Exceeded available resources");
+			if(res > init) throw std::logic_error("Surpassed maximum resources");
 			cv.notify_one();
 		}
 
@@ -25,7 +25,7 @@ class Semaphore {
 	private:
 		std::mutex mtx;
 		std::condition_variable cv;
-		int res, init;
+		unsigned int res, init;
 };
 
 // https://stackoverflow.com/a/26624538/9664844
