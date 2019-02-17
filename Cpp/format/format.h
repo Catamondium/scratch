@@ -1,4 +1,5 @@
 // g++-8 -std=c++2a -fconcepts
+#pragma once
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -108,20 +109,4 @@ inline std::string fmt::operator()(T val, Ts... args) noexcept
 	std::stringstream out;
 	print(out, str.begin(), str.end(), val, args...);
 	return out.str();
-}
-
-int main()
-{
-	std::cout << "_fmt: %"_fmt(5) << std::endl;
-	std::cout << "bol: % %"_fmt(true, false, 555) << std::endl;
-	std::cout << "str: %"_fmt(std::string("string")) << std::endl;
-	std::cout << "escaped: %% continued"_fmt(44444) << std::endl;
-
-	// Stringable, accepts any T -> std::string
-	fmt addtest = "Ass";
-	addtest += "Bass";
-	std::cout << "addtest: " << addtest() << std::endl;
-
-	std::vector<int> ints = {0, 1, 2, 3, 4, 5};
-	std::cout << "%"_fmt(ints) << std::endl;
 }
