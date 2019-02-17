@@ -61,12 +61,11 @@ template<class X>
 struct repr<std::vector<X>> {
 	std::string operator()(std::vector<X> vec)
 	{
-		if(vec.size() == 0)
-			return "[]";
+		if(vec.size() == 0) return "[]";
 		else {
 			std::string ret = "[";
 			for(X &val : vec) {
-				ret += "%"_fmt(val) + ", ";
+				ret += repr<X>{}(val) + ", ";
 			}
 			return ret.substr(0, ret.size()-2) + "]";
 		}
@@ -98,7 +97,6 @@ void print(std::stringstream &out, auto start, auto end, T &val, Ts&... args)
 	}
 }
 
-
 inline std::string fmt::operator()() noexcept
 {
 	return str;
@@ -111,7 +109,6 @@ inline std::string fmt::operator()(T val, Ts... args) noexcept
 	print(out, str.begin(), str.end(), val, args...);
 	return out.str();
 }
-
 
 int main()
 {
