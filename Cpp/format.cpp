@@ -36,32 +36,31 @@ fmt operator""_fmt(const char * str, std::size_t) noexcept
 	return {str};
 }
 
-namespace format { // Formatting endpoints for type T
-	// T = generic
-	template<class T>
-	std::string dispatch(T val, auto &start, auto &end)
+// Emulate std::hash<T>{}(thing) interface
+template<class T>
+struct repr {
+	std::string operator()(T in)
 	{
 		std::stringstream ss;
-		ss << val; // just require regular ostream << T def
-		++start;   // iter presented with '%' char
+		ss << in;
 		return ss.str();
 	}
+};
 
-	// T = bool
-	std::string dispatch(bool val, auto &start, auto &end)
+template<>
+struct repr<bool> {
+	std::string operator()(bool bol)
 	{
 		std::stringstream ss;
-		ss << std::boolalpha;
-		ss << val;
-		++start;
+		ss << std::boolalpha << bol;
 		return ss.str();
 	}
+};
 
-	// T == std::vector<X>
-	template<class X>
-	std::string dispatch(std::vector<X> vec, auto &start, auto &end)
+template<class X>
+struct repr<std::vector<X>> {
+	std::string operator()(std::vector<X> vec)
 	{
-		++start;
 		if(vec.size() == 0)
 			return "[]";
 		else {
@@ -72,7 +71,7 @@ namespace format { // Formatting endpoints for type T
 			return ret.substr(0, ret.size()-2) + "]";
 		}
 	}
-}
+};
 
 void print(std::stringstream &out, auto &start, auto &end)
 {
@@ -84,10 +83,11 @@ void print(std::stringstream &out, auto &start, auto &end)
 template<class T, class... Ts>
 void print(std::stringstream &out, auto start, auto end, T &val, Ts&... args)
 {
-	for(auto it = start; it != end; ) {
+	for(auto it = start; it != end;) {
 		if(*it == '%') {
 			if(*(it+1) != '%') {
-				out << format::dispatch(val, it, end);
+				out << repr<T>{}(val);//format::dispatch(val, it, end);
+				++it;
 				print(out, it, end, args...); // enumerate recursively
 				break;
 			} else
