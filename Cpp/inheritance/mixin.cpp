@@ -1,50 +1,28 @@
 #include <iostream>
-#include <vector>
 
-// type counting mixin
-template <typename T>
-struct counter {
-    static int objects_created;
-    static int objects_alive;
-
-    counter()
-    {
-        ++objects_created;
-        ++objects_alive;
-    }
-    
-    counter(const counter&)
-    {
-        ++objects_created;
-        ++objects_alive;
-    }
-	protected:
-		~counter() // objects should never be removed through pointers of this type
-		{
-			--objects_alive;
-		}
+// implements undo()
+template <typename BASE, typename T = typename BASE::ValueType>
+struct Undoable : BASE {
+	using ValueType = T;
+	T before;
+	virtual void set(T v) { before = BASE::get(); BASE::set(v); }
+	void undo() { BASE::set(before); }
 };
-template <typename T> int counter<T>::objects_created(0);
-template <typename T> int counter<T>::objects_alive(0);
 
-// Classes with counter functionality
-class X : counter<X> {};
-class Y : counter<Y> {};
+struct MyNum {
+	using ValueType = int;
+	int val;
+	void set(int x){ val = x; }
+	int get(){ return val; }
+};
 
 int main()
 {
-	// one of each alive
-	X x;
-	Y y;
-
-	{
-		std::vector<X> vecX(4); // 05 created overall
-		std::vector<Y> vecY(9); // 10 created overall
-	}
-
-	std::cout << "X created:\t" << counter<X>::objects_created << std::endl;
-	std::cout << "X alive:\t" << counter<X>::objects_alive << std::endl;
-
-	std::cout << "Y created:\t" << counter<Y>::objects_created << std::endl;
-	std::cout << "Y alive:\t" << counter<Y>::objects_alive << std::endl;
+	Undoable<MyNum> i; // 'MyNum' with undo()
+	i.set(5);
+	std::cout << i.get() << std::endl;
+	i.set(88);
+	std::cout << i.get() << std::endl;
+	i.undo();
+	std::cout << i.get() << std::endl;
 }
