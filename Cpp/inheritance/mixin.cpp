@@ -1,16 +1,16 @@
 #include <iostream>
 
 // implements undo()
-template <typename BASE, typename T = typename BASE::ValueType>
+template <typename BASE, typename T = typename BASE::value_type>
 struct Undoable : BASE {
-	using ValueType = T;
+	using value_type = T;
 	T before;
 	virtual void set(T v) { before = BASE::get(); BASE::set(v); }
 	void undo() { BASE::set(before); }
 };
 
 struct MyNum {
-	using ValueType = int;
+	using value_type = int;
 	int val;
 	void set(int x){ val = x; }
 	int get(){ return val; }
