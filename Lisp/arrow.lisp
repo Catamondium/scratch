@@ -1,3 +1,4 @@
+;#!/usr/bin/clisp
 ; attempt to do arrow operator threading from clojure
 
 (defun <>p (form)
@@ -5,6 +6,15 @@
  (and
   (symbolp form)        ; is a symbol
   (string= form "<>"))) ; and '<>'
+
+(defmacro defarrow (name comment reducer inserter)
+ "Define arrow operator with (ARROW COMMENT REDUCER INSERTER)"
+ `(defmacro ,name (initial-form &rest forms)
+	 ,comment
+	 (reduce
+	  (,reducer ,inserter)
+	  forms
+	  :initial-value initial-form)))
 
 (defun simple-reducer (insert-fun)
  "Create reducing function from function inserter"
@@ -34,35 +44,28 @@
 					   `(let ((,r ,acc))
 						   ,(substitute-if r #'<>p next))))))))
 
-; actual operator defs
-(defmacro -> (initial-form &rest forms)
- "Chain forms by first param"
- (reduce
-  (simple-reducer #'insert-first) ; reduce by prepending
-  forms
-  :initial-value initial-form))
+(defarrow ->
+ "Chain forms my first param"
+ simple-reducer
+ #'insert-first)
 
-(defmacro ->> (initial-form &rest forms)
+(defarrow ->>
  "Chain forms by last param"
- (reduce
-  (simple-reducer #'insert-last) ; reduce by appending
-  forms
-  :initial-value initial-form))
+  simple-reducer
+  #'insert-last) ; reduce by appending
 
-(defmacro -<> (initial-form &rest forms)
- "Chain forms together by '<>' symbols, chain by first param if unspecified"
- (reduce
-  (diamond-reducer #'insert-first)
-  forms
-  :initial-value initial-form))
 
-(defmacro -<>> (initial-form &rest forms)
+(defarrow -<>
+ "Chain forms together by '<>', otherwise chain by first param"
+ diamond-reducer
+ #'insert-first)
+
+(defarrow -<>>
  "Chain forms together by '<>' symbols, chain by last param if unspecified"
- (reduce
-  (diamond-reducer #'insert-last)
-  forms
-  :initial-value initial-form))
+  diamond-reducer
+  #'insert-last)
 
+; main
 
 (format t "~S~%"
  (macroexpand-1 '(-<>
@@ -75,3 +78,5 @@
  (insert-first 1 '("f" 2 3)))
 (format t "~S~%"
  (insert-last 1 '("f" 2 3)))
+
+ 
