@@ -7,12 +7,12 @@
   (symbolp form)        ; is a symbol
   (string= form "<>"))) ; and '<>'
 
-(defmacro defarrow (name comment reducer inserter)
+(defmacro defarrow (name comment reducing-agent inserter)
  "Define arrow operator with (ARROW COMMENT REDUCER INSERTER)"
  `(defmacro ,name (initial-form &rest forms)
 	 ,comment
 	 (reduce
-	  (,reducer ,inserter)
+	  (,reducing-agent ,inserter)
 	  forms
 	  :initial-value initial-form)))
 
@@ -69,10 +69,10 @@
 
 (format t "~S~%"
  (macroexpand-1 '(-<>
- 5         ;      3  2     arg
- (+ 10 <>) ; (- 2 (* (+ 10 5) 3))
- (* 3)     ; append to 1st param
- (+ 2 <>))))
+  5         ;      3  2     arg
+  (+ 10 <>) ; (- 2 (* (+ 10 5) 3))
+  (* 3)     ; append to 1st param
+  (+ 2 <>))))
 
  (format t "~S~%"
  (macroexpand-1 '(-<>
