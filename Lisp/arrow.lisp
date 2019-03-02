@@ -80,6 +80,6 @@
   (+ <> <>)))) ; more complex print, duplicate eval
 
 
- (format t "5 + 2 = ~D~%" (-<> 5 (+ <> <>)))
+ (format t "5 + 5 = ~D~%" (-<> 5 (+ <> <>)))
 
  
