@@ -12,7 +12,7 @@
  `(defmacro ,name (initial-form &rest forms)
 	 ,comment
 	 (reduce
-	  (,reducing-agent ,inserter)
+	  (,reducing-agent #',inserter)
 	  forms
 	  :initial-value initial-form)))
 
@@ -47,23 +47,23 @@
 (defarrow ->
  "Chain forms my first param"
  simple-reducer
- #'insert-first)
+ insert-first)
 
 (defarrow ->>
  "Chain forms by last param"
   simple-reducer
-  #'insert-last) ; reduce by appending
+  insert-last) ; reduce by appending
 
 
 (defarrow -<>
  "Chain forms together by '<>', otherwise chain by first param"
  diamond-reducer
- #'insert-first)
+ insert-first)
 
 (defarrow -<>>
  "Chain forms together by '<>' symbols, chain by last param if unspecified"
   diamond-reducer
-  #'insert-last)
+  insert-last)
 
 ; main
 
