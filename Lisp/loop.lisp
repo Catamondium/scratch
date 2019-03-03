@@ -4,6 +4,11 @@
   collect ; (*) i for each elem and collect
   	(loop for x in m collect (* x i))))
 
-(format t "~S:~%~{(~{~2,'0D~^ ~})~&~}~&"
- '(make-multiples 5 '(1 2 3 4 5))
- (make-multiples 5 '(1 2 3 4 5)))
+(setq i 5)
+(let ((fmt (concatenate 'string
+			"~S:~%~{ (~{~"
+			(write-to-string (+ 1 (floor (log (* i i) 10))))
+			",'0D~^ ~})~&~}~&")))
+	(format t fmt
+	 `(make-multiples ,i ,(loop for x from 1 upto i collect x))
+	  (make-multiples i  (loop for x from 1 upto i collect x))))
