@@ -1,7 +1,7 @@
 (defun inspect-call (f &rest args)
     "Prints function call site and forwards it's return values"
     (let ((ret (apply f args)))
-        (format t "(~S ~{~S ~}) -> ~S~%" f args ret)
+        (format t "(~S ~{~S~^ ~}) -> ~S~%" f args ret)
         ret))
 
 (defmacro inspector-gadget (f)
