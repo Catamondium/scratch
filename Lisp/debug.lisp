@@ -11,13 +11,14 @@
                                     (symbol-name :debug-)
                                     (write-to-string f)))))
         `(defun ,observed-func (&rest args)
-            ,(format nil "instrumented ~A, wrapped in ~A.~&~A: ~A~&~A: ~E"
+            ,(format nil "instrumented ~A, wrapped in ~A.~&~A: ~A~&~A: ~A"
                 f 'inspect-call f (documentation f 'function) 'inspect-call (documentation 'inspect-call 'function))
             (apply 'inspect-call ',f args))))
 
 (format t "~S~%" (macroexpand-1 '(inspector-gadget +)))
 (inspector-gadget +) ; DEBUG-+ returned to global scope
-(format t "Forwarded return: ~D~%" (debug-+ 2 2 2))
+(format t "Forwarded return: ~D~%~%" (debug-+ 2 2 2))
 
 (defun add (&rest args) "Aliases + function." (apply '+ args))
+(inspector-gadget add)
 (format t "Doc: ~S" (documentation 'debug-add 'function))
