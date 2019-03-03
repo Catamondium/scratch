@@ -17,7 +17,7 @@
 
 (format t "~S~%" (macroexpand-1 '(inspector-gadget +)))
 (inspector-gadget +) ; DEBUG-+ returned to global scope
-(format t "Forwarded return: ~D~%~%" (debug-+ 2 2 2))
+(format t "Forwarded return: (~{~S~^ ~}) ==> ~D~%~%" '(debug-+ 2 2 2) (debug-+ 2 2 2))
 
 (defun add (&rest args) "Aliases + function." (apply '+ args))
 (inspector-gadget add)
