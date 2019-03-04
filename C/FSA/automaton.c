@@ -1,45 +1,60 @@
 #include <stdio.h>
-enum states { before = 0, inside = 1, after = 2 };
+enum states
+{
+	before = 0,
+	inside = 1,
+	after = 2
+};
 
-void step(enum states *state, int c) {
+void step(enum states *state, int c)
+{
 	// Automation step
-	if(c == '\n') {
+	if (c == '\n')
+	{
 		putchar('\n');
 		*state = before;
-	} else
-		switch(*state) {
-			case before:
-				if(c != ' ') {
-					putchar(c);
-					*state = inside;
-				}
-				break;
+	}
+	else
+		switch (*state)
+		{
+		case before:
+			if (c != ' ')
+			{
+				putchar(c);
+				*state = inside;
+			}
+			break;
 
-			case inside:
-				if(c == ' ') {
-					*state = after;
-				} else {
-					putchar(c);
-				}
-				break;
+		case inside:
+			if (c == ' ')
+			{
+				*state = after;
+			}
+			else
+			{
+				putchar(c);
+			}
+			break;
 
-			case after:
-				break;
+		case after:
+			break;
 		}
 }
 
-int main(void) {
+int main(void)
+{
 	/* Read stdin sentence
 	 * Print first word
 	 */
 	enum states state = before;
 
 	int c;
-	while((c = getchar()) != EOF) {
+	while ((c = getchar()) != EOF)
+	{
 		step(&state, c);
 	}
 
-	if(state != before)
+	if (state != before)
 		putchar('\n');
 	return 0;
 }

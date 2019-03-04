@@ -2,33 +2,39 @@
 #include <string.h>
 #include <stdbool.h>
 
-typedef char* string;
+typedef char *string;
 int increment = 0;
 const string phases[] = {"Init", "Cond", "Iter", "Body"};
 
-void mark(const string phase) {
-	printf("FOR[%d]:\t%s\n%s", increment++, phase, 
-			strcmp(phase, phases[2])?"":"\n");
+void mark(const string phase)
+{
+	printf("FOR[%d]:\t%s\n%s", increment++, phase,
+		   strcmp(phase, phases[2]) ? "" : "\n");
 	return;
 }
 
-int init() {
+int init()
+{
 	mark("Init");
 	return 0;
 }
 
-bool condition(int i) {
+bool condition(int i)
+{
 	mark("Cond");
-	return (i < 2)?true:false;
+	return (i < 2) ? true : false;
 }
 
-int iterate() {
+int iterate()
+{
 	mark("Iter");
 	return 1;
 }
 
-int main() {
-	for(int i = init(); condition(i); i += iterate()) {
+int main()
+{
+	for (int i = init(); condition(i); i += iterate())
+	{
 		mark("Body");
 	}
 }
