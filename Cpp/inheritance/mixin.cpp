@@ -2,18 +2,24 @@
 
 // implements undo()
 template <typename BASE, typename T = typename BASE::value_type>
-struct Undoable : BASE {
+struct Undoable : BASE
+{
 	using value_type = T;
 	T before;
-	virtual void set(T v) { before = BASE::get(); BASE::set(v); }
+	virtual void set(T v)
+	{
+		before = BASE::get();
+		BASE::set(v);
+	}
 	void undo() { BASE::set(before); }
 };
 
-struct MyNum {
+struct MyNum
+{
 	using value_type = int;
 	int val;
-	void set(int x){ val = x; }
-	int get(){ return val; }
+	void set(int x) { val = x; }
+	int get() { return val; }
 };
 
 int main()

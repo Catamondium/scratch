@@ -8,13 +8,12 @@
 
 std::mutex cout_rights; // reserve std::cout
 
-using Runner = std::pair<int, std::string> ;
-std::vector<Runner> runners = 
-{
-	{15, "Willy"},
-	{5,  "Bob"},
-	{5, "Emma"}
-};
+using Runner = std::pair<int, std::string>;
+std::vector<Runner> runners =
+	{
+		{15, "Willy"},
+		{5, "Bob"},
+		{5, "Emma"}};
 
 void time(Runner run)
 {
@@ -25,18 +24,18 @@ void time(Runner run)
 	std::lock_guard<std::mutex> guard(cout_rights);
 	auto elapsed = std::chrono::system_clock::now() - before;
 	std::cout << "TERM:\t" << run.second
-		<< "\t" << elapsed.count() / 1e9 << "s" << std::endl;
+			  << "\t" << elapsed.count() / 1e9 << "s" << std::endl;
 }
 
 int main()
 {
 	std::vector<std::thread> threads;
-	for(auto &r : runners)
+	for (auto &r : runners)
 		threads.push_back(std::thread(
-					[](auto a){time(a);}, // fails callable otherwise
-					r));
+			[](auto a) { time(a); }, // fails callable otherwise
+			r));
 
-	for(auto &t : threads)
+	for (auto &t : threads)
 		t.join();
 
 	std::cout << "main termination" << std::endl;

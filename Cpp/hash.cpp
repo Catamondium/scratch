@@ -2,10 +2,11 @@
 #include <functional>
 #include <unordered_set>
 
-struct S {
+struct S
+{
 	int x;
 	int y;
-	S(int x, int y): x(x), y(y) {};
+	S(int x, int y) : x(x), y(y){};
 };
 
 bool operator==(const S &lhs, const S &rhs)
@@ -13,14 +14,15 @@ bool operator==(const S &lhs, const S &rhs)
 	return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
-std::ostream& operator<<(std::ostream& stream, S s)
+std::ostream &operator<<(std::ostream &stream, S s)
 {
 	stream << "S(" << s.x << ", " << s.y << ")";
 	return stream;
 }
 
 // Custom hash functor
-struct MyHash {
+struct MyHash
+{
 	std::size_t operator()(S const &s) const noexcept
 	{
 		std::size_t xhash = std::hash<int>{}(s.x);
@@ -30,7 +32,7 @@ struct MyHash {
 };
 
 // Specialisation form
-template<>
+template <>
 struct std::hash<S> // is your constructor theoretically useful?
 {
 	std::size_t operator()(S const &s) const noexcept
@@ -41,7 +43,8 @@ struct std::hash<S> // is your constructor theoretically useful?
 	}
 };
 
-int main() {
+int main()
+{
 	std::string str = "aaa";
 	int num = 222;
 	S vec = {2, 4};
@@ -61,12 +64,12 @@ int main() {
 	// Allowed, hashable type
 	std::unordered_set<S> stuff;
 
-	for(int i = 0; i < 3; ++i)
+	for (int i = 0; i < 3; ++i)
 		stuff.insert({1, i});
 	// Repeated element ignored, matched hash
-	stuff.insert({1, 0}); 
+	stuff.insert({1, 0});
 
 	std::cout << "stuff:" << std::endl;
-	for(auto &s : stuff)
+	for (auto &s : stuff)
 		std::cout << "\t" << s << std::endl;
 }

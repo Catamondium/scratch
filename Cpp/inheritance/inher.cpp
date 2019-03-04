@@ -3,28 +3,34 @@
 
 using namespace std;
 
-struct myString { // naturally public class
+struct myString
+{ // naturally public class
 	string str;
-	myString(string in = ""): str(in) {}
+	myString(string in = "") : str(in) {}
 };
 
-struct myInt {
-	public:
+struct myInt
+{
+  public:
 	int num;
-	myInt(int in = 0): num(in) {}
+	myInt(int in = 0) : num(in) {}
 };
 
-class Derived: public myString, public myInt {
+class Derived : public myString, public myInt
+{
 	float flt;
-	public:
-	Derived(float inF = 0, int inI = 0, string inS = ""):
-		// Call supers and other constructor inits
-		flt(inF), myInt(inI), myString(inS) {}
+
+  public:
+	// Call supers and other constructor inits
+	Derived(float inF = 0, int inI = 0, string inS = "") : flt(inF), myInt(inI), myString(inS)
+	{
+	}
 	// Allow 'friend' access to private/protected members
-	friend ostream& operator<<(ostream&, Derived);
+	friend ostream &operator<<(ostream &, Derived);
 };
 
-ostream& operator<<(ostream& stream, Derived a) {
+ostream &operator<<(ostream &stream, Derived a)
+{
 	char buf[200];
 	sprintf(buf, "Derived(%f, %d, %s)", a.flt, a.num, a.str.c_str());
 	stream << buf;
@@ -32,7 +38,8 @@ ostream& operator<<(ostream& stream, Derived a) {
 	return stream;
 }
 
-int main() {
+int main()
+{
 	Derived obj;
 	cout << obj << endl;
 

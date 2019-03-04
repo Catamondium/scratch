@@ -13,7 +13,8 @@ int resource = 10; // approx counted semaphore
 void print()
 {
 	std::unique_lock<std::mutex> lck(mtx);
-	while(!ready) cv.wait(lck); // spurious wake protection
+	while (!ready)
+		cv.wait(lck); // spurious wake protection
 	std::cout << "onReady" << std::endl;
 }
 
@@ -21,7 +22,7 @@ void consumer()
 {
 	std::unique_lock<std::mutex> lck(mtx);
 	// predicate form
-	cv.wait(lck, [](){return resource != 0;});
+	cv.wait(lck, []() { return resource != 0; });
 	std::cout << resource << std::endl;
 	--resource;
 }
@@ -30,7 +31,8 @@ int main()
 {
 	std::thread onReady(print);
 	std::thread consumers[10];
-	for(int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 10; ++i)
+	{
 		consumers[i] = std::thread(consumer);
 	}
 
@@ -40,13 +42,14 @@ int main()
 		cv.notify_all();
 	}
 
-	while(resource > 0) {
+	while (resource > 0)
+	{
 		std::unique_lock<std::mutex> lck(mtx);
 		cv.notify_all();
 	}
 
 	onReady.join();
-	for(auto &t : consumers)
+	for (auto &t : consumers)
 		t.join();
 	std::cout << "main termination" << std::endl;
 }

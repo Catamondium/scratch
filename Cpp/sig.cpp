@@ -1,7 +1,7 @@
 #include <iostream>
 #include <csignal> // signal, raise
 
-using SIGHANDLE = void(*)(int);  // handler signature
+using SIGHANDLE = void (*)(int); // handler signature
 unsigned int global;
 
 void siginthandle(int sig)
@@ -15,16 +15,17 @@ int main(int argc, char **argv)
 {
 	signal(SIGINT, siginthandle);
 #ifdef ignore
-	signal(SIGFPE, SIG_IGN);     // ignore interrupt
+	signal(SIGFPE, SIG_IGN); // ignore interrupt
 #endif
-	raise(SIGFPE);               // gauranteed SIGFPE
+	raise(SIGFPE); // gauranteed SIGFPE
 
-	while(true) {
-		if(global % 10 == 0)     // limit output
+	while (true)
+	{
+		if (global % 10 == 0) // limit output
 			std::cout << "looping" << std::endl;
 		++global;
 
-		if(argc > 1 && global > 100)
-			raise(SIGINT);       // invoke signal internally
+		if (argc > 1 && global > 100)
+			raise(SIGINT); // invoke signal internally
 	}
 }
