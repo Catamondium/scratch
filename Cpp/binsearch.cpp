@@ -34,7 +34,7 @@ int main()
 	std::vector<int> stuff;
 	for (int i = 0; i < TEST; ++i)
 	{
-		stuff.push_back(i); // doesn't contain 5
+		stuff.push_back(i);
 	}
 
 	std::cout << binsearch(stuff, 25) << std::endl;
