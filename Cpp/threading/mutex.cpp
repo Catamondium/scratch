@@ -20,9 +20,9 @@ void time(Runner run)
 	auto before = std::chrono::system_clock::now();
 	std::this_thread::sleep_for(std::chrono::seconds(run.first));
 
+	auto elapsed = std::chrono::system_clock::now() - before;
 	// Acquire printing ability
 	std::lock_guard<std::mutex> guard(cout_rights);
-	auto elapsed = std::chrono::system_clock::now() - before;
 	std::cout << "TERM:\t" << run.second
 			  << "\t" << elapsed.count() / 1e9 << "s" << std::endl;
 }

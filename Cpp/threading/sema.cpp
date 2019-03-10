@@ -30,9 +30,10 @@ class Semaphore
 	}
 };
 
+// RAII wrapped Semaphore
 // https://stackoverflow.com/a/26624538/9664844
 class ScopedSemaphore
-{ // RAII wrapper
+{
 	Semaphore &sem;
 
   public:
