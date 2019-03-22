@@ -13,11 +13,10 @@ mulper = iterate $ prodChar
 mulperCount :: Int -> Int
 mulperCount x
     | digits x == 1 = 0
-    | otherwise = counter $ mulpers
+    | otherwise = counter . mulper $ x
     where
         digits = length . show
         counter = (+1) . length . takeWhile ((/=1) . digits)
-        mulpers = mulper x
 
 -- Fundamentally takeWhile?
 predIndex :: (a -> Bool) -> [a] -> Int
