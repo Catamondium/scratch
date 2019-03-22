@@ -9,7 +9,7 @@ mulper = iterate $ prodChar
 mulperCount :: Int -> Int
 mulperCount x
     | digits x == 1 = 0
-    | otherwise = (+1) . counter . mulper $ x
+    | otherwise     = (+1) . counter . mulper $ x
     where
-        digits = length . show
+        digits  = length . show
         counter = length . takeWhile ((/=1) . digits)
