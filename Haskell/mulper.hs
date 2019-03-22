@@ -2,16 +2,18 @@
 TODO: Smart string constructor, numeric only & filtered respectively
 -}
 
-prodChar :: String -> Int
-prodChar xs =  product [read [x] :: Int| x <- xs]
+prodChar :: Int -> Int
+prodChar =
+    let digitizer = map $ read . (:[])
+    in product . digitizer . show
 
 mulper :: Int -> [Int]
-mulper = iterate $ prodChar . show
+mulper = iterate $ prodChar
 
 mulperCount :: Int -> Int
 mulperCount x
     | digits x == 1 = 0
-    | otherwise = predIndex mulpers (\d -> digits d == 1)
+    | otherwise = predIndex mulpers $ (==1) . digits
     where
         digits = length . show
         mulpers = mulper x
