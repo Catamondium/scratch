@@ -8,7 +8,7 @@ trans f t (c:str)
     where
         ft = zip f t
         cropf = take (length t) f -- insure corresponding lengths
-        Just sub = lookup c ft
+        Just sub = lookup' c ft
 
 lookup' :: Eq a => a -> [(a, b)] -> Maybe b
 lookup' _ []    = Nothing
