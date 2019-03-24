@@ -1,14 +1,12 @@
 trans :: Eq a => [a] -> [a] -> [a] -> [a]
-trans [] _ str = str
-trans _ [] str = str
+trans [] _ seq = seq
+trans _ [] seq = seq
 trans _ _ [] = []
-trans f t (c:str)
-    | c `elem` cropf    = sub   : trans cropf t str
-    | otherwise         = c     : trans cropf t str
-    where
-        ft = zip f t
-        cropf = take (length t) f -- insure corresponding lengths
-        Just sub = lookup' c ft
+trans f t (c:seq) =
+    let v = lookup' c $ zip f $ cycle t
+    in case v of
+        Just x  -> x : trans f t seq
+        Nothing -> c : trans f t seq
 
 lookup' :: Eq a => a -> [(a, b)] -> Maybe b
 lookup' _ []    = Nothing
