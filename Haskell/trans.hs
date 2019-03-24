@@ -1,12 +1,12 @@
 trans :: Eq a => [a] -> [a] -> [a] -> [a]
-trans [] _ seq = seq
-trans _ [] seq = seq
+trans [] _ cs = cs
+trans _ [] cs = cs
 trans _ _ [] = []
-trans f t (c:seq) =
-    let v = lookup' c $ zip f $ cycle t
+trans from to (c:cs) =
+    let v = lookup' c $ zip from $ cycle to
     in case v of
-        Just x  -> x : trans f t seq
-        Nothing -> c : trans f t seq
+        Just x  -> x : trans from to cs
+        Nothing -> c : trans from to cs
 
 lookup' :: Eq a => a -> [(a, b)] -> Maybe b
 lookup' _ []    = Nothing
