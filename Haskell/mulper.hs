@@ -12,4 +12,4 @@ mulperCount x
     | otherwise     = (+1) . counter . mulper $ x
     where
         digits  = length . show
-        counter = length . takeWhile ((/=1) . digits)
+        counter = length . takeWhile (\y -> digits y /= 1)
