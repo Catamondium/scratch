@@ -12,4 +12,4 @@ lookup' :: Eq a => a -> [(a, b)] -> Maybe b
 lookup' _ []    = Nothing
 lookup' x ((a, b):lst)
     | x == a    = Just b
-    | otherwise = lookup x lst
+    | otherwise = lookup' x lst
