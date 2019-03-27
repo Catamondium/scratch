@@ -13,6 +13,11 @@ acc operator""_acc(const char *str, std::size_t) noexcept
     return {str};
 }
 
+struct tmpacc
+{
+    operator acc() { return acc(); };
+};
+
 // For chaining property, must recieve and return 'acc'
 template <class T>
 acc operator%(acc cur, T other)
@@ -24,6 +29,7 @@ acc operator%(acc cur, T other)
 
 int main()
 {
-    acc newacc = "myacc "_acc % 222 % "Asss" % " " % 21.01;
+    tmpacc a; // converted by operator% ? yes
+    acc newacc = a % 222 % "Asss" % " " % 21.01;
     std::cout << newacc.sofar << std::endl;
 }
