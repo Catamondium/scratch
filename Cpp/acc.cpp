@@ -13,7 +13,7 @@ acc operator""_acc(const char *str, std::size_t) noexcept
     return {str};
 }
 
-struct tmpacc
+struct tmptype
 {
     operator acc() { return acc(); };
 };
@@ -29,7 +29,7 @@ acc operator%(acc cur, T other)
 
 int main()
 {
-    tmpacc a; // converted by operator% ? yes
+    tmptype a; // converted by operator% ? yes
     acc newacc = a % 222 % "Asss" % " " % 21.01;
     std::cout << newacc.sofar << std::endl;
 }
