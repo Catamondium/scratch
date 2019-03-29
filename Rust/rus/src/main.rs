@@ -29,13 +29,56 @@ fn func(t: &mut (u32, u32)) // takes mutable reference
     *t // dereference
 }
 
+fn flowctrl() {
+    let var = true; // immutable boolean, init required
+    // flowctrl are expressions, having values
+    let n = if var {
+        50
+    } else {
+        0
+    };
+
+    let mut i = 0;
+    // infinite until break, break can also return
+    // break may also use labels in nesting
+    loop {
+        print!("*");
+        i += 1;
+        if i > 5 {
+            print!("\n");
+            break;
+        }
+    }
+
+    while i > 0 { // unparenthisised condition
+        print!("^");
+        i -= 1;
+    }
+    println!("\ni == {}", i);
+
+    let arr = [1, 2, 3, 4]; // array
+    for e in arr.iter() { // for x:agg, iterator pattern
+    println!("Val is: {}", e);
+    }
+
+    for n in (0..=6).rev() { // range, `..=` includes 6
+        println!("Ranged: {}", n);
+    }
+}
+
 fn main() {
     let mut x = (5, 4); // tuples
     func(&mut x);
     let (y, z) = x; // destructuring
     println!("{} {}", y, z);
+    let r = x; // move, x is invalid now
+    println!("{:#?}", x);
 
     let start = Time {hrs: 1, mins: 30};
     // Time supports std::fmt::Display trait
-    println!("{}", start);
+    println!("{} -> {}mins", start, start.abs());
+
+    flowctrl();
+
+    let l = lifetime();
 }
