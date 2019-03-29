@@ -1,3 +1,5 @@
+use std::fmt; // namespace
+
 #[allow(dead_code)]
 #[allow(unused_variables)]
 
@@ -14,7 +16,7 @@ impl Time { // repeatable block, has Time method decls
         ret
     }
 }
-use std::fmt; // namespace
+
 // Trait implementation for printing
 impl fmt::Display for Time {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -27,6 +29,27 @@ fn func(t: &mut (u32, u32)) // takes mutable reference
 -> (u32, u32){ // returns tuple
     t.0 += 1; // increment 0th component
     *t // dereference
+}
+
+fn slicing() {
+    // slice => ranged reference into thingy
+    // does act like a borrow according to it's reference tag
+    fn getword(s: &String) -> &str {
+        let bytes = s.as_bytes();
+
+        // enumerate(), iterate w/ index & element
+        for (i, &item) in bytes.iter().enumerate() {
+            if item == b' ' {
+                return &s[0..i]; // not inclusive of i
+            }
+        }
+        &s[..] // whole thing
+    }
+
+    let string = String::from("first second third");
+    let word = getword(&string);
+    //string.clear(); // illegal under borrowing
+    println!("{}", word);
 }
 
 fn flowctrl() {
@@ -79,6 +102,5 @@ fn main() {
     println!("{} -> {}mins", start, start.abs());
 
     flowctrl();
-
-    let l = lifetime();
+    slicing();
 }
