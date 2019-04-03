@@ -26,6 +26,8 @@ string tostring(Colour c)
         return "GRN";
     case blue:
         return "BLU";
+    default:
+        return "BLU";
     }
 }
 
@@ -49,7 +51,7 @@ void write(string file, vector<S> v)
     ofstream ofile(file, ios::trunc);
     if (ofile.is_open())
     {
-        for (S a : v)
+        for (auto &&a : v)
             ofile << tostring(a) << "\n";
     }
 }
@@ -101,7 +103,7 @@ void write(string file, vector<S> v)
     ofstream ofile(file, ios::binary | ios::trunc);
     if (ofile.is_open())
     {
-        for (S a : v)
+        for (auto &&a : v)
             ofile.write((char *)&a, sizeof(a));
     }
 }
@@ -141,23 +143,22 @@ int main()
 
         cout << "READ " << TXT << "\n------" << endl;
         vector<S> t_in = text::read(TXT);
-        for (S a : t_in)
+        for (auto &&a : t_in)
             cout << tostring(a) << endl;
         cout << endl;
     }
 
     {
-        vector<S> out = {{blue, 20},
-                         {green, 500},
-                         {red, 10000}};
+        vector<S> out = {{red, 20},
+                         {green, 50},
+                         {blue, 1000}};
 
-        cout << "WRITE " << BIN
-             << ", sizeof(S): " << sizeof(S) << endl;
+        cout << "WRITE " << BIN << endl;
         bin::write(BIN, out);
 
         cout << "READ " << BIN << "\n------" << endl;
         vector<S> t_in = bin::read(BIN);
-        for (S a : t_in)
+        for (auto &&a : t_in)
             cout << tostring(a) << endl;
     }
 }
