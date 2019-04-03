@@ -4,10 +4,10 @@
 #include <vector>
 using namespace std;
 
-#define TXT "outfile"
-#define BIN "binfile"
+constexpr char TXT[] = "outfile";
+constexpr char BIN[] = "binfile";
 
-constexpr char DEL = '\t';
+constexpr char DELIM = '\t';
 
 enum Colour
 {
@@ -38,7 +38,7 @@ struct S
 
 string tostring(S s)
 {
-    return tostring(s.col) + DEL + std::to_string(s.val);
+    return tostring(s.col) + DELIM + std::to_string(s.val);
 }
 
 // text serialization
@@ -67,11 +67,11 @@ vector<S> read(string file)
             Colour c;
             int v;
 
-            auto delim = line.find(DEL);
-            if (delim == string::npos)
+            auto pos = line.find(DELIM);
+            if (pos == string::npos)
                 continue;
 
-            auto tokCol = line.substr(0, delim);
+            auto tokCol = line.substr(0, pos);
             if (tokCol == "RED")
                 c = red;
             else if (tokCol == "GRN")
@@ -81,7 +81,7 @@ vector<S> read(string file)
             else
                 continue;
 
-            auto tokVal = line.substr(delim);
+            auto tokVal = line.substr(pos);
             if (tokVal == "")
                 continue;
 
