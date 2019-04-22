@@ -1,14 +1,6 @@
 /* triangle.c */
 #include <curses.h>
 #include <stdlib.h>
-#include <time.h>
-
-#define ITERMAX 10000
-
-/*unsigned int getrandom_int()
-{
-    return rand();
-}*/
 
 int height, width;
 
@@ -31,7 +23,8 @@ int main(void)
     init_pair(1, COLOR_WHITE, COLOR_BLACK);
     clear();
     getmaxyx(stdscr, height, width);
-    /* initialize triangle */
+
+    // Draw
     horline(0, '*' | COLOR_PAIR(1));
     for (int i = 1; i < height - 1; i++)
     {
@@ -40,8 +33,8 @@ int main(void)
     }
     horline(height - 1, '*' | COLOR_PAIR(1));
     refresh();
-    // Blocking get, 'press any key to exit'
-    getch();
+    //
+
+    getch(); // Blocking get, 'press any key to exit'
     endwin();
-    exit(0);
 }
