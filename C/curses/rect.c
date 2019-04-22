@@ -17,21 +17,22 @@ int main(void)
 {
     /* initialize curses */
     initscr();
+    start_color();
     cbreak();
     noecho();
-    start_color();
-    init_pair(1, COLOR_WHITE, COLOR_BLACK);
     clear();
     getmaxyx(stdscr, height, width);
 
+    init_pair(1, COLOR_GREEN, COLOR_YELLOW);
+
     // Draw
-    horline(0, '*' | COLOR_PAIR(1));
+    horline(0, '*' | COLOR_PAIR(0));
     for (int i = 1; i < height - 1; i++)
     {
-        mvaddch(i, 0, '+' | COLOR_PAIR(0));
-        mvaddch(i, width - 1, '+' | COLOR_PAIR(0));
+        mvaddch(i, 0, '#' | COLOR_PAIR(1));
+        mvaddch(i, width - 1, '#' | COLOR_PAIR(1));
     }
-    horline(height - 1, '*' | COLOR_PAIR(1));
+    horline(height - 1, '*' | COLOR_PAIR(0));
     refresh();
     //
 
