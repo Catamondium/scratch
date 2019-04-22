@@ -1,4 +1,3 @@
-/* triangle.c */
 #include <curses.h>
 #include <stdlib.h>
 
