@@ -1,4 +1,3 @@
-;#!/usr/bin/clisp
 ; attempt to do arrow operator threading from clojure
 
 (defun <>p (form)
