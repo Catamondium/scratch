@@ -4,21 +4,25 @@ use worries;
 
 sub sFiles(@seq, Int $width) {
 	my &matcher = -> IO $f {
-		my Str $reS = "{$f.dirname}-\\d\{{$width}\}.*";
-		$reS .= subst(/'/'/, '\/', :g);
+		my $escaped = $f.dirname.subst(/'/'/, '\/', :g);
+		my Str $reS = "{$escaped}-\\d\{{$width}\}.*";
 		return ($f.basename ~~ /$reS/).Bool;
 	};
 
 	say "running";
-	## stops printing from here 
 	my @compliant = grep(&matcher, @seq);
+	## unreachable from here 
+	$_.throw(); # should fail
 	@compliant .= sort(-> IO $v {$v.basename});
+
 	say @compliant;
 	say "compliants";
 
 	my @incompliant = grep(-> $f { ! &matcher($f) }, @seq);
 	say @incompliant.WHAT.WHAT;
 	say "incompliants";
+
+	print @compliant;
 
 #	return @compliant.append(@incompliant);
 }
