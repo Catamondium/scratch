@@ -14,6 +14,6 @@ print(type(mylist))
 print(mylist)
 
 # allows only 2 types, indexed by the left one, mutable
-mydict = {1 : 'a', 2 : 'b', 3 : 'c'}
+mydict = {1: 'a', 2: 'b', 3: 'c'}
 print(type(mydict))
 print(mydict)

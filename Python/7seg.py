@@ -22,6 +22,6 @@ for testword in words:
             longest = []
         longest.append(testword)
 
-print("%d words" % len(words))
+print(f"{len(words)} words")
 print("%d longest representable:\n\t%s" %
         (len(longest), "\n\t".join(longest)))
