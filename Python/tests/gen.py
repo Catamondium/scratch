@@ -2,10 +2,9 @@
 sample = 1000000
 Result = []
 
-# Reference array gen
-
 
 def firstn_A(n):
+    """List generation method"""
     num, nums = 0, []
     while num < n:
         nums.append(num)
@@ -15,14 +14,13 @@ def firstn_A(n):
 
 Result.append(sum(firstn_A(sample)))
 
-# Generator function proper
-
 
 def firstn_G(n):
+    """Generator function proper"""
     num = 0
     while num < n:
-        yield num  # Return
-        num += 1  # Shift
+        yield num   # Return
+        num += 1    # Shift
 
 
 Result.append(sum(firstn_G(sample)))
