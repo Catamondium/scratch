@@ -41,5 +41,5 @@ class App(Frame):
 
 if __name__ == "__main__":
     app = App()
-    app.master.maxsize(100, 400)
+    app.master.title("Simple")
     app.mainloop()
