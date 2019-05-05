@@ -19,7 +19,6 @@ sub sFiles(@seq, Int $width) {
 	say "compliants";
 
 	my @incompliant = grep(-> $f { ! &matcher($f) }, @seq);
-	say @incompliant.WHAT.WHAT;
 	say "incompliants";
 
 	print @compliant;
