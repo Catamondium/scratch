@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from sqlite3 import PrepareProtocol
 class Employee:
     def __init__(self, first, last, pay):
         self.first = first
@@ -16,7 +15,3 @@ class Employee:
 
     def __repr__(self):
         return f"Employee('{self.first}', '{self.last}', '{self.pay}')"
-    
-    def __conform__(self, protocol):
-        if protocol is PrepareProtocol:
-            return 
