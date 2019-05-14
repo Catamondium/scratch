@@ -15,7 +15,7 @@ class Indent:
         lines = self.stream.getvalue().split('\n')
         sys.stdout = sys.__stdout__
         for line in lines:
-            print(f"\t{line}", end='')
+            print(f"\t{line}")
         return False  # rethrow exception
 
 
