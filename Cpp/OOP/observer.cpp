@@ -25,10 +25,11 @@ class Button : public Publisher
 public:
     void press()
     {
-        cout << "Button press: " << this << endl
-             << endl;
+        cout << endl
+             << "Button press:\t@" << this << endl;
         notify();
     }
+
     void attach(Observer *o)
     {
         observers.push_back(o);
@@ -55,7 +56,7 @@ struct Submitter : public Observer
     int presses = 0;
     void update()
     {
-        cout << "Submitter: " << this << endl;
+        cout << "Submitter:\t@" << this << endl;
         cout << "\tPresses: " << ++presses << endl;
     };
 };
