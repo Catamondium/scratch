@@ -15,9 +15,11 @@ ostream &operator<<(ostream &os, Document d)
 {
     os << "Title: " << d.title << '\n';
     os << "[";
-    for (auto t : d.tags)
+    for (auto it = d.tags.cbegin(); it != d.tags.cend(); ++it)
     {
-        os << t << ", ";
+        os << *it;
+        if (it != d.tags.cend() - 1)
+            os << ", ";
     }
     os << "]\n";
 
