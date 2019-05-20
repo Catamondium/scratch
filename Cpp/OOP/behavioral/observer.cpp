@@ -18,7 +18,7 @@ struct Publisher // or subject
     virtual void notify() = 0; // callback
 };
 
-class Button : public Publisher
+class Button final : public Publisher
 {
     vector<Observer *> observers;
 
@@ -30,19 +30,19 @@ public:
         notify();
     }
 
-    void attach(Observer *o)
+    void attach(Observer *o) override
     {
         observers.push_back(o);
     };
 
-    void detach(Observer *o)
+    void detach(Observer *o) override
     {
         observers.erase(
             std::remove(observers.begin(), observers.end(), o),
             observers.end());
     };
 
-    void notify()
+    void notify() override
     {
         for (Observer *o : observers)
         {
@@ -51,10 +51,12 @@ public:
     };
 };
 
-struct Submitter : public Observer
+class Submitter final : public Observer
 {
     int presses = 0;
-    void update()
+
+public:
+    void update() override
     {
         cout << "Submitter:\t@" << this << endl;
         cout << "\tPresses: " << ++presses << endl;

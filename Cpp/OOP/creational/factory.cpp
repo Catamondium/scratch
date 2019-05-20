@@ -14,12 +14,12 @@ struct Animal
 
 struct Cat : public Animal
 {
-    string type() { return "Cat"; };
+    string type() override { return "Cat"; };
 };
 
 struct Dog : public Animal
 {
-    string type() { return "Dog"; };
+    string type() override { return "Dog"; };
 };
 
 using uanim_ptr = unique_ptr<Animal>;

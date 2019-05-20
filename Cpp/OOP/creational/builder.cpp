@@ -35,7 +35,7 @@ struct Builder // abstract builder
     virtual ~Builder<T>(){};
 };
 
-class DocBuilder : public Builder<Document>
+class DocBuilder final : public Builder<Document>
 {
     string title;
     string body;
@@ -57,7 +57,7 @@ public:
         tags.push_back(tag);
     };
 
-    Document build()
+    Document build() override
     {
         return Document(title, body, tags);
     };

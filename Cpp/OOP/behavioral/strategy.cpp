@@ -11,9 +11,9 @@ struct Fibber
 };
 
 // Interchangeable method
-struct IterFibber : public Fibber
+struct IterFibber final : public Fibber
 {
-    int calculate(int num)
+    int calculate(int num) override
     {
         int x = 1;
         int acc = 0;
@@ -29,9 +29,9 @@ struct IterFibber : public Fibber
 };
 
 // Interchangeable methods
-struct RecurFibber : public Fibber
+struct RecurFibber final : public Fibber
 {
-    int calculate(int num)
+    int calculate(int num) override
     {
         if (num == 0)
             return 0;

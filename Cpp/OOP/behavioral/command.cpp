@@ -11,36 +11,36 @@ struct Command
     virtual void execute() = 0;
 };
 
-class Add : public Command
+class Add final : public Command
 {
     int left, right;
 
 public:
     Add(int left, int right) : left(left), right(right){};
 
-    void execute()
+    void execute() override
     {
         cout << left + right << endl;
     }
 
-    void print()
+    void print() override
     {
         cout << left << " + " << right << endl;
     }
 };
 
-class Mul : public Command
+class Mul final : public Command
 {
     int left, right;
 
 public:
     Mul(int left, int right) : left(left), right(right){};
-    void execute()
+    void execute() override
     {
         cout << left * right << endl;
     }
 
-    void print()
+    void print() override
     {
         cout << left << " * " << right << endl;
     }
