@@ -68,10 +68,9 @@ struct Herd : public Animal
                 ss << herd->pprint(indent, i == animals.size() - 1, false);
             }
             else
-            { // leaf, 'last' by definition
+            { // leaf
                 ss << indent;
                 ss << terminator;
-                //indent += wall;
                 ss << elem->print() << endl;
             }
         }
