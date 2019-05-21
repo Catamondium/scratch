@@ -27,16 +27,9 @@ struct Dog : public Animal
 };
 
 // Composite
-struct Herd : public Animal
+class Herd final : public Animal
 {
-    void group()
-    {
-        partition(animals.begin(), animals.end(), [](sanim_ptr elem) {
-            auto herd = dynamic_pointer_cast<Herd>(elem);
-            return (herd) ? false : true; // frontload leaves
-        });
-    };
-
+public:
     string pprint(string indent, bool last, bool root)
     {
         constexpr string_view joint = "└──";
@@ -93,6 +86,13 @@ struct Herd : public Animal
     }
 
 private:
+    void group()
+    {
+        partition(animals.begin(), animals.end(), [](sanim_ptr elem) {
+            auto herd = dynamic_pointer_cast<Herd>(elem);
+            return (herd) ? false : true; // frontload leaves
+        });
+    };
     vector<sanim_ptr> animals;
 };
 
