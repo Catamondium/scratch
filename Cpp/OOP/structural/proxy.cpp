@@ -28,7 +28,7 @@ template <class Impl>
 struct AgeProxy : Vehicle
 {
     int age;
-    shared_ptr<Vehicle> vehicle = make_shared<Impl>();
+    unique_ptr<Vehicle> vehicle = make_unique<Impl>();
     AgeProxy(int age) : age(age){};
 
     // Transparently delegates, depending on rights
