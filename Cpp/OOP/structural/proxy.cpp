@@ -7,7 +7,7 @@ struct Vehicle
     virtual void drive() = 0;
 };
 
-struct Car : Vehicle
+struct Car : public Vehicle
 {
     void drive() override
     {
@@ -15,7 +15,7 @@ struct Car : Vehicle
     }
 };
 
-struct Bike : Vehicle
+struct Bike : public Vehicle
 {
     void drive() override
     {
@@ -25,7 +25,7 @@ struct Bike : Vehicle
 
 // Access control proxy
 template <class Impl>
-struct AgeProxy : Vehicle
+struct AgeProxy : public Vehicle
 {
     int age;
     unique_ptr<Vehicle> vehicle = make_unique<Impl>();
@@ -44,8 +44,8 @@ struct AgeProxy : Vehicle
 int main()
 {
     Car normalcar;
-    AgeProxy<Car> agecar(7);
-    AgeProxy<Bike> agebike(18);
+    AgeProxy<Car> agecar{7};
+    AgeProxy<Bike> agebike{18};
 
     normalcar.drive();
     agecar.drive();

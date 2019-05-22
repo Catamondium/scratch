@@ -47,7 +47,6 @@ public:
 };
 
 // Not relevant, convenient
-using ucom_ptr = unique_ptr<Command>;
 constexpr string_view operations = "+*";
 enum struct Operation
 {
@@ -55,7 +54,7 @@ enum struct Operation
     mul = '*'
 };
 
-ucom_ptr opFactory()
+unique_ptr<Command> opFactory()
 {
     int left, right;
     char c;
@@ -98,7 +97,7 @@ bool yesno()
 
 int main()
 {
-    ucom_ptr reciever = opFactory();
+    unique_ptr<Command> reciever = opFactory();
     reciever->print();
     cout << "Continue? ";
     if (yesno())

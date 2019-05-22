@@ -12,8 +12,6 @@ struct Animal
 {
     virtual string print() = 0;
 };
-using uanim_ptr = unique_ptr<Animal>;
-using sanim_ptr = shared_ptr<Animal>;
 
 // Components/leaves
 struct Cat : public Animal
@@ -54,7 +52,7 @@ public:
 
         for (int i = 0; i < animals.size(); ++i)
         {
-            sanim_ptr elem = animals[i];
+            shared_ptr<Animal> elem = animals[i];
             auto herd = dynamic_pointer_cast<Herd>(elem);
             if (herd)
             { // branch
@@ -80,7 +78,7 @@ public:
         return pprint("", true, true);
     };
 
-    void push(sanim_ptr animal)
+    void push(shared_ptr<Animal> animal)
     {
         animals.push_back(animal);
     }
@@ -88,15 +86,15 @@ public:
 private:
     void group()
     {
-        partition(animals.begin(), animals.end(), [](sanim_ptr elem) {
+        partition(animals.begin(), animals.end(), [](shared_ptr<Animal> elem) {
             auto herd = dynamic_pointer_cast<Herd>(elem);
             return (herd) ? false : true; // frontload leaves
         });
     };
-    vector<sanim_ptr> animals;
+    vector<shared_ptr<Animal>> animals;
 };
 
-uanim_ptr makeAnimal(int depth)
+unique_ptr<Animal> makeAnimal(int depth)
 {
     int r = std::rand();
     r %= (depth < 4) ? 3 : 2;
@@ -124,7 +122,7 @@ int main()
 {
     std::srand(std::time(nullptr));
 
-    vector<sanim_ptr> animals;
+    vector<shared_ptr<Animal>> animals;
     for (int i = 0; i < 5; ++i)
         animals.push_back(makeAnimal(1));
 

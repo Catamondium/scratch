@@ -22,9 +22,7 @@ struct Dog : public Animal
     string type() override { return "Dog"; };
 };
 
-using uanim_ptr = unique_ptr<Animal>;
-using sanim_ptr = shared_ptr<Animal>;
-uanim_ptr makeAnimal()
+unique_ptr<Animal> makeAnimal()
 {
     int r = std::rand();
     if (r % 2 == 0)
@@ -37,7 +35,7 @@ int main()
 {
     std::srand(std::time(nullptr));
 
-    vector<sanim_ptr> animals;
+    vector<shared_ptr<Animal>> animals;
     for (int i = 0; i < 5; ++i)
         animals.push_back(makeAnimal());
 
