@@ -5,22 +5,24 @@
 using namespace std;
 
 // Callee
-struct Observer
+struct Observer // or subscriber
 {
     virtual void update() = 0;
 };
+using sobs_ptr = shared_ptr<Observer>; // reference counted
+using wobs_ptr = weak_ptr<Observer>;   // non-owning based on shared
 
 // Caller
-struct Publisher // or subject
+struct Subject // or publisher
 {
-    virtual void attach(Observer *) = 0;
-    virtual void detach(Observer *) = 0;
+    virtual void attach(sobs_ptr) = 0;
+    virtual void detach(sobs_ptr) = 0;
     virtual void notify() = 0; // callback
 };
 
-class Button final : public Publisher
+class Button final : public Subject
 {
-    vector<Observer *> observers;
+    vector<wobs_ptr> observers;
 
 public:
     void press()
@@ -30,23 +32,32 @@ public:
         notify();
     }
 
-    void attach(Observer *o) override
+    void attach(sobs_ptr observer) override
     {
-        observers.push_back(o);
+        observers.push_back(observer);
     };
 
-    void detach(Observer *o) override
+    void detach(sobs_ptr observer) override
     {
         observers.erase(
-            std::remove(observers.begin(), observers.end(), o),
+            remove_if(
+                observers.begin(),
+                observers.end(),
+                [&](const wobs_ptr &wptr) {
+                    return wptr.expired() || wptr.lock() == observer;
+                }),
             observers.end());
     };
 
     void notify() override
     {
-        for (Observer *o : observers)
+        for (auto wptr : observers)
         {
-            o->update();
+            if (!wptr.expired())
+            {
+                auto observer = wptr.lock();
+                observer->update();
+            }
         }
     };
 };
@@ -65,19 +76,22 @@ public:
 
 int main()
 {
-    using uobs_ptr = unique_ptr<Observer>;
     Button butt;
 
-    uobs_ptr sub1 = make_unique<Submitter>();
-    uobs_ptr sub2 = make_unique<Submitter>();
-    butt.attach(sub1.get());
-    butt.attach(sub2.get());
-
+    vector<sobs_ptr> observers;
+    for (int i = 0; i < 5; ++i)
+    {
+        auto shptr = make_shared<Submitter>();
+        observers.push_back(shptr);
+        butt.attach(shptr);
+    }
     butt.press();
-    butt.press();
 
-    uobs_ptr sub3 = make_unique<Submitter>();
-    butt.attach(sub3.get());
-
+    {
+        auto shptr = make_shared<Submitter>();
+        cout << "Scoped: " << shptr.get() << endl;
+        butt.attach(shptr);
+        butt.press();
+    }
     butt.press();
 }
