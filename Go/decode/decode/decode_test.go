@@ -26,9 +26,9 @@ func TestHeaderGen(t *testing.T) {
 
 	t.Run("Simple struct, 3 primitve, 1 anon field", func(t *testing.T) {
 		expected := []Header{
-			{"Name", reflect.ValueOf(Simple{}).Type().Field(0).Type},
-			{"Freq", reflect.ValueOf(Simple{}).Type().Field(1).Type},
-			{"Val", reflect.ValueOf(Simple{}).Type().Field(2).Type},
+			{"Name", reflect.TypeOf("string()")},
+			{"Freq", reflect.TypeOf(int(0))},
+			{"Val", reflect.TypeOf(float64(0))},
 		}
 
 		recieved := DeriveHeaders(Simple{})
