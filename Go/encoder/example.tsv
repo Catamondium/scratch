@@ -1,0 +1,5 @@
+# Sample table
+# Decoder REQUIRES a header
+Name |Freq |Val
+aaaa |11   |11.1
+bbbb |22   |22.2
