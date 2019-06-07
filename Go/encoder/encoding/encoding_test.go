@@ -64,7 +64,19 @@ func TestHeaderGen(t *testing.T) {
 			}
 		}()
 
-		DeriveHeader(50) // should test all primatives, optimally
+		DeriveHeader(50)
+		t.Errorf(badPanic)
+	})
+
+	t.Run("Panic on Ptr type", func(t *testing.T) {
+		defer func() {
+			if err := recover(); err != nil {
+			}
+		}()
+
+		addr := &Simple{}
+
+		DeriveHeader(addr)
 		t.Errorf(badPanic)
 	})
 }

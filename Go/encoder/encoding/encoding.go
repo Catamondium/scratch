@@ -30,9 +30,14 @@ func fieldReadable(v interface{}, f reflect.StructField) bool {
 
 // DeriveHeader derive header information
 // from named public fields
+// v is a concrete non-ptr type
 func DeriveHeader(v interface{}) []Heading {
 	out := make([]Heading, 0)
 	val := reflect.ValueOf(v)
+	if reflect.TypeOf(v).Kind() == reflect.Ptr {
+		panic("Must be of value type")
+	}
+
 	if val.Kind() != reflect.Struct {
 		panic(fmt.Sprintf("Invalid kind %v", val.Kind()))
 	}
@@ -48,34 +53,33 @@ func DeriveHeader(v interface{}) []Heading {
 
 func toString(v interface{}) string {
 	// complex number support?
-	// Tag conversion specifiers?
-	val := reflect.ValueOf(v)
-	switch n := val.Type().Name(); n {
-	case "string":
-		return v.(string)
+	// Tagged conversion specifiers?
+	switch val := v.(type) {
+	case string:
+		return val
 
-	case "int":
-		return strconv.FormatInt(int64(v.(int)), 10)
-	case "int8":
-		return strconv.FormatInt(int64(v.(int8)), 10)
-	case "int16":
-		return strconv.FormatInt(int64(v.(int16)), 10)
-	case "int32":
-		return strconv.FormatInt(int64(v.(int32)), 10)
-	case "int64":
-		return strconv.FormatInt(v.(int64), 10)
+	case int:
+		return strconv.FormatInt(int64(val), 10)
+	case int8:
+		return strconv.FormatInt(int64(val), 10)
+	case int16:
+		return strconv.FormatInt(int64(val), 10)
+	case int32:
+		return strconv.FormatInt(int64(val), 10)
+	case int64:
+		return strconv.FormatInt(val, 10)
 
-	case "float32":
-		return strconv.FormatFloat(float64(v.(float32)), 'E', -1, 32)
-	case "float64":
-		return strconv.FormatFloat(v.(float64), 'E', -1, 64)
+	case float32:
+		return strconv.FormatFloat(float64(val), 'E', -1, 32)
+	case float64:
+		return strconv.FormatFloat(val, 'E', -1, 64)
 
 	default:
-		panic(fmt.Sprintf("Type '%s' cannot strconv to string", n))
+		panic(fmt.Sprintf("Type '%s' cannot strconv to string", reflect.TypeOf(v).String()))
 	}
 }
 
-// MakeRecord create a **single** record from a struct and Headings
+// MakeRecord create a **single** record from a struct and header
 func MakeRecord(v interface{}, header []Heading) []string {
 	val := reflect.ValueOf(v)
 	out := make([]string, 0)
