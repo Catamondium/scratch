@@ -29,6 +29,13 @@ func genReader(r io.Reader) *csv.Reader {
 	return ret
 }
 
+// Return standardised option set
+func genWriter(r io.Writer) *csv.Writer {
+	ret := csv.NewWriter(r)
+	ret.Comma = '|'
+	return ret
+}
+
 func sliceEqual(t *testing.T, exp, rec interface{}) {
 	t.Helper()
 	if !reflect.DeepEqual(exp, rec) {
@@ -45,7 +52,7 @@ func assertEqual(t *testing.T, exp, rec interface{}) {
 
 func TestHeaderGen(t *testing.T) {
 	t.Run("Simple struct, 3 primitve, 1 anon field", func(t *testing.T) {
-		expected := []Heading{
+		expected := Header{
 			{"Name", reflect.TypeOf("string()")},
 			{"Freq", reflect.TypeOf(int(0))},
 			{"Val", reflect.TypeOf(float64(0))},
@@ -96,11 +103,19 @@ func TestToString(t *testing.T) {
 	t.Run("valid types", func(t *testing.T) {
 		assertEqual(t, "ABCD", toString("ABCD"))
 
+		assertEqual(t, "true", toString(true))
+
 		assertEqual(t, "50", toString(50))
 		assertEqual(t, "50", toString(int8(50)))
 		assertEqual(t, "50", toString(int16(50)))
 		assertEqual(t, "50", toString(int32(50)))
 		assertEqual(t, "50", toString(int64(50)))
+
+		assertEqual(t, "50", toString(uint(50)))
+		assertEqual(t, "50", toString(uint8(50)))
+		assertEqual(t, "50", toString(uint16(50)))
+		assertEqual(t, "50", toString(uint32(50)))
+		assertEqual(t, "50", toString(uint64(50)))
 
 		assertEqual(t, "1E+00", toString(1.00))
 		assertEqual(t, "1E+00", toString(float32(1.00)))
