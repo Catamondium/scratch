@@ -110,3 +110,22 @@ func MakeRecord(v interface{}, header Header) []string {
 	}
 	return out
 }
+
+// MakeRecords create a set of records from []struct and hader
+func MakeRecords(v interface{}, header Header) [][]string {
+	typ := reflect.TypeOf(v)
+	if typ.Kind() != reflect.Slice {
+		panic("object must be slice")
+	}
+
+	val := reflect.ValueOf(v)
+	size := val.Len()
+	out := make([][]string, size)
+
+	for i := 0; i < size; i++ {
+		record := MakeRecord(val.Index(i).Interface(), header)
+		out[i] = record // := u declare stuff????
+	}
+
+	return out
+}

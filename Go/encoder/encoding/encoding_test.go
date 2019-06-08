@@ -85,10 +85,15 @@ func TestHeaderGen(t *testing.T) {
 	})
 }
 
+var (
+	sampleSimple       = Simple{"Adam", 50, 1.00, 0}
+	sampleSimpleResult = []string{"Adam", "50", "1E+00"}
+)
+
 func TestRecordGen(t *testing.T) {
 	t.Run("Simple record generation", func(t *testing.T) {
-		source := Simple{"Adam", 50, 1.00, 0}
-		expected := []string{"Adam", intResult, floatResult}
+		source := sampleSimple
+		expected := sampleSimpleResult
 
 		heading := DeriveHeader(source)
 		recieved := MakeRecord(source, heading)
@@ -97,10 +102,34 @@ func TestRecordGen(t *testing.T) {
 	})
 }
 
-const testInt = 50
-const intResult = "50"
-const testFloat = 1.00
-const floatResult = "1E+00"
+func TestRecordsGen(t *testing.T) {
+	t.Run("Simple records gen", func(t *testing.T) {
+		source := []Simple{
+			sampleSimple,
+			sampleSimple,
+			sampleSimple,
+		}
+
+		expected := [][]string{
+			sampleSimpleResult,
+			sampleSimpleResult,
+			sampleSimpleResult,
+		}
+
+		heading := DeriveHeader(source[0])
+		recieved := MakeRecords(source, heading)
+
+		sliceEqual(t, expected, recieved)
+
+	})
+}
+
+const (
+	testInt     = 50
+	intResult   = "50"
+	testFloat   = 1.00
+	floatResult = "1E+00"
+)
 
 func TestToString(t *testing.T) {
 	t.Run("valid types", func(t *testing.T) {
