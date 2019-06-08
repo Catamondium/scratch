@@ -37,13 +37,6 @@ func fieldReadable(v interface{}, f reflect.StructField) bool {
 func DeriveHeader(v interface{}) Header {
 	out := make(Header, 0)
 	val := reflect.ValueOf(v)
-	if reflect.TypeOf(v).Kind() == reflect.Ptr {
-		panic("Must be of value type")
-	}
-
-	if val.Kind() != reflect.Struct {
-		panic(fmt.Sprintf("Invalid kind %v", val.Kind()))
-	}
 
 	for i := 0; i < val.NumField(); i++ {
 		f := val.Type().Field(i)
@@ -113,19 +106,13 @@ func MakeRecord(v interface{}, header Header) []string {
 
 // MakeRecords create a set of records from []struct and hader
 func MakeRecords(v interface{}, header Header) [][]string {
-	typ := reflect.TypeOf(v)
-	if typ.Kind() != reflect.Slice {
-		panic("object must be slice")
-	}
-
 	val := reflect.ValueOf(v)
+
 	size := val.Len()
 	out := make([][]string, size)
-
 	for i := 0; i < size; i++ {
 		record := MakeRecord(val.Index(i).Interface(), header)
 		out[i] = record
 	}
-
 	return out
 }
