@@ -73,14 +73,13 @@ func TestHeaderGen(t *testing.T) {
 		sliceEqual(t, expected, recieved)
 	})
 
-	t.Run("Panic on int & ptr types", func(t *testing.T) {
+	t.Run("Panic on primative & ptr types", func(t *testing.T) {
 		assertPanics(t, func() {
 			DeriveHeader(50)
 		})
 
 		assertPanics(t, func() {
-			addr := &Simple{}
-			DeriveHeader(addr)
+			DeriveHeader(&Simple{})
 		})
 	})
 }
@@ -120,7 +119,17 @@ func TestRecordsGen(t *testing.T) {
 		recieved := MakeRecords(source, heading)
 
 		sliceEqual(t, expected, recieved)
+	})
 
+	t.Run("Panic on non-slice", func(t *testing.T) {
+		header := make([]Heading, 0)
+		assertPanics(t, func() {
+			MakeRecords(Simple{}, header)
+		})
+
+		assertPanics(t, func() {
+			MakeRecords(&Simple{}, header)
+		})
 	})
 }
 
@@ -149,10 +158,10 @@ func TestToString(t *testing.T) {
 		assertEqual(t, intResult, toString(uint32(testInt)))
 		assertEqual(t, intResult, toString(uint64(testInt)))
 
-		assertEqual(t, floatResult, toString(1.00))
-		assertEqual(t, floatResult, toString(float32(1.00)))
+		assertEqual(t, floatResult, toString(testFloat))
+		assertEqual(t, floatResult, toString(float32(testFloat)))
 
-		assertEqual(t, "int", toString(reflect.TypeOf(55)))
+		assertEqual(t, "int", toString(reflect.TypeOf(testInt)))
 	})
 
 	t.Run("panic on invalid type", func(t *testing.T) {

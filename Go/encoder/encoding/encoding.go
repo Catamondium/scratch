@@ -24,7 +24,7 @@ type Heading struct {
 }
 
 // Header ordered list of Headings
-type Header []Heading
+type Header = []Heading
 
 // True for named, settable fields
 func fieldReadable(v interface{}, f reflect.StructField) bool {
@@ -124,7 +124,7 @@ func MakeRecords(v interface{}, header Header) [][]string {
 
 	for i := 0; i < size; i++ {
 		record := MakeRecord(val.Index(i).Interface(), header)
-		out[i] = record // := u declare stuff????
+		out[i] = record
 	}
 
 	return out
