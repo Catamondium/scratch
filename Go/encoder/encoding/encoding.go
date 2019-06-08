@@ -60,6 +60,8 @@ func toString(v interface{}) string {
 	switch val := v.(type) {
 	case string:
 		return val
+	case fmt.Stringer:
+		return val.String()
 
 	case bool:
 		return strconv.FormatBool(val)
@@ -92,7 +94,7 @@ func toString(v interface{}) string {
 		return strconv.FormatUint(val, 10)
 
 	default:
-		panic(fmt.Sprintf("Type '%s' cannot strconv to string", reflect.TypeOf(v).String()))
+		panic(fmt.Sprintf("Type '%s' does not support strconv or Stringable conversion", reflect.TypeOf(v).String()))
 	}
 }
 

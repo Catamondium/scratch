@@ -14,8 +14,6 @@ type Simple struct {
 	int  // anonymous field, ignored
 }
 
-const badPanic = "Failed to panic"
-
 const simpleSample = `
 Name|Freq|Val # REQUIRED
 Dan|5|55
@@ -50,6 +48,19 @@ func assertEqual(t *testing.T, exp, rec interface{}) {
 	}
 }
 
+const badPanic = "Failed to panic"
+
+func assertPanics(t *testing.T, f func()) {
+	t.Helper()
+	defer func() {
+		if err := recover(); err != nil {
+		}
+	}()
+
+	f()
+	t.Errorf(badPanic)
+}
+
 func TestHeaderGen(t *testing.T) {
 	t.Run("Simple struct, 3 primitve, 1 anon field", func(t *testing.T) {
 		expected := Header{
@@ -59,39 +70,25 @@ func TestHeaderGen(t *testing.T) {
 		}
 
 		recieved := DeriveHeader(Simple{})
-
-		if !reflect.DeepEqual(expected, recieved) {
-			t.Errorf("Bad generation:\nExpected: %v\nRecieved: %v", expected, recieved)
-		}
+		sliceEqual(t, expected, recieved)
 	})
 
-	t.Run("Panic on primitive int", func(t *testing.T) {
-		defer func() {
-			if err := recover(); err != nil {
-			}
-		}()
+	t.Run("Panic on int & ptr types", func(t *testing.T) {
+		assertPanics(t, func() {
+			DeriveHeader(50)
+		})
 
-		DeriveHeader(50)
-		t.Errorf(badPanic)
-	})
-
-	t.Run("Panic on Ptr type", func(t *testing.T) {
-		defer func() {
-			if err := recover(); err != nil {
-			}
-		}()
-
-		addr := &Simple{}
-
-		DeriveHeader(addr)
-		t.Errorf(badPanic)
+		assertPanics(t, func() {
+			addr := &Simple{}
+			DeriveHeader(addr)
+		})
 	})
 }
 
 func TestRecordGen(t *testing.T) {
 	t.Run("Simple record generation", func(t *testing.T) {
 		source := Simple{"Adam", 50, 1.00, 0}
-		expected := []string{"Adam", "50", "1E+00"}
+		expected := []string{"Adam", intResult, floatResult}
 
 		heading := DeriveHeader(source)
 		recieved := MakeRecord(source, heading)
@@ -99,35 +96,39 @@ func TestRecordGen(t *testing.T) {
 		sliceEqual(t, expected, recieved)
 	})
 }
+
+const testInt = 50
+const intResult = "50"
+const testFloat = 1.00
+const floatResult = "1E+00"
+
 func TestToString(t *testing.T) {
 	t.Run("valid types", func(t *testing.T) {
 		assertEqual(t, "ABCD", toString("ABCD"))
 
 		assertEqual(t, "true", toString(true))
 
-		assertEqual(t, "50", toString(50))
-		assertEqual(t, "50", toString(int8(50)))
-		assertEqual(t, "50", toString(int16(50)))
-		assertEqual(t, "50", toString(int32(50)))
-		assertEqual(t, "50", toString(int64(50)))
+		assertEqual(t, intResult, toString(testInt))
+		assertEqual(t, intResult, toString(int8(testInt)))
+		assertEqual(t, intResult, toString(int16(testInt)))
+		assertEqual(t, intResult, toString(int32(testInt)))
+		assertEqual(t, intResult, toString(int64(testInt)))
 
-		assertEqual(t, "50", toString(uint(50)))
-		assertEqual(t, "50", toString(uint8(50)))
-		assertEqual(t, "50", toString(uint16(50)))
-		assertEqual(t, "50", toString(uint32(50)))
-		assertEqual(t, "50", toString(uint64(50)))
+		assertEqual(t, intResult, toString(uint(testInt)))
+		assertEqual(t, intResult, toString(uint8(testInt)))
+		assertEqual(t, intResult, toString(uint16(testInt)))
+		assertEqual(t, intResult, toString(uint32(testInt)))
+		assertEqual(t, intResult, toString(uint64(testInt)))
 
-		assertEqual(t, "1E+00", toString(1.00))
-		assertEqual(t, "1E+00", toString(float32(1.00)))
+		assertEqual(t, floatResult, toString(1.00))
+		assertEqual(t, floatResult, toString(float32(1.00)))
+
+		assertEqual(t, "int", toString(reflect.TypeOf(55)))
 	})
 
-	t.Run("panic on badKind", func(t *testing.T) {
-		defer func() {
-			if err := recover(); err != nil {
-			}
-		}()
-
-		toString(Simple{}) // should test all primatives, optimally
-		t.Errorf(badPanic)
+	t.Run("panic on invalid type", func(t *testing.T) {
+		assertPanics(t, func() {
+			toString(Simple{})
+		})
 	})
 }
