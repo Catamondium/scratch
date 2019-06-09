@@ -208,9 +208,10 @@ func FromRecords(v interface{}, header []string, records [][]string) {
 	typ := reflect.TypeOf(v).Elem().Elem()
 
 	for _, record := range records {
-		one := reflect.Zero(typ).Interface()
-		FromRecord(&one, header, record)
-		reflect.Append(slce, reflect.ValueOf(one))
+		refTyp := reflect.PtrTo(typ)
+		ref := reflect.Zero(refTyp)
+		FromRecord(ref.Interface(), header, record)
+		reflect.Append(slce, ref.Elem())
 	}
-	/// BROKEN
+	// Still BROKEN
 }
