@@ -2,6 +2,7 @@ package encoding
 
 import (
 	"encoding/csv"
+	"fmt"
 	"io"
 	"reflect"
 	"testing"
@@ -12,6 +13,10 @@ type Simple struct {
 	Freq int
 	Val  float64
 	int  // anonymous field, ignored
+}
+
+func (s Simple) GoString() string {
+	return fmt.Sprintf("Simple{%q, %d, %.2f, %d}", s.Name, s.Freq, s.Val, s.int)
 }
 
 const simpleSample = `
@@ -64,9 +69,9 @@ func assertPanics(t *testing.T, f func()) {
 func TestHeaderGen(t *testing.T) {
 	t.Run("Simple struct, 3 primitve, 1 anon field", func(t *testing.T) {
 		expected := Header{
-			{"Name", reflect.TypeOf("string()")},
-			{"Freq", reflect.TypeOf(int(0))},
-			{"Val", reflect.TypeOf(float64(0))},
+			"Name",
+			"Freq",
+			"Val",
 		}
 
 		recieved := DeriveHeader(Simple{})
@@ -133,40 +138,110 @@ func TestRecordsGen(t *testing.T) {
 	})
 }
 
+func TestSimpleGen(t *testing.T) {
+	t.Run("Single Simple decode", func(t *testing.T) {
+		expected := sampleSimple
+		header := []string{"Name", "Freq", "Val"}
+		record := sampleSimpleResult
+
+		recieved := &Simple{}
+		FromRecord(recieved, header, record)
+
+		assertEqual(t, expected, *recieved)
+	})
+
+	t.Run("Anonymous fields ignored", func(t *testing.T) {
+		expected := Simple{}
+		header := []string{"int"}
+		record := []string{"50"}
+
+		recieved := &Simple{}
+		FromRecord(recieved, header, record)
+
+		assertEqual(t, expected, *recieved)
+	})
+
+	t.Run("Absent fields ignored", func(t *testing.T) {
+		expected := Simple{}
+		header := []string{"NoneField"}
+		record := []string{"50"}
+
+		recieved := &Simple{}
+		FromRecord(recieved, header, record)
+
+		assertEqual(t, expected, *recieved)
+	})
+}
+
 const (
-	testInt     = 50
-	intResult   = "50"
-	testFloat   = 1.00
-	floatResult = "1E+00"
+	realInt   int     = 50
+	intString         = "50"
+	realFlt   float64 = 1.00
+	fltString         = "1E+00"
 )
 
 func TestToString(t *testing.T) {
 	t.Run("valid types", func(t *testing.T) {
 		assertEqual(t, "ABCD", toString("ABCD"))
+		assertEqual(t, "int", toString(reflect.TypeOf(realInt)))
 
 		assertEqual(t, "true", toString(true))
 
-		assertEqual(t, intResult, toString(testInt))
-		assertEqual(t, intResult, toString(int8(testInt)))
-		assertEqual(t, intResult, toString(int16(testInt)))
-		assertEqual(t, intResult, toString(int32(testInt)))
-		assertEqual(t, intResult, toString(int64(testInt)))
+		assertEqual(t, intString, toString(realInt))
+		assertEqual(t, intString, toString(int8(realInt)))
+		assertEqual(t, intString, toString(int16(realInt)))
+		assertEqual(t, intString, toString(int32(realInt)))
+		assertEqual(t, intString, toString(int64(realInt)))
 
-		assertEqual(t, intResult, toString(uint(testInt)))
-		assertEqual(t, intResult, toString(uint8(testInt)))
-		assertEqual(t, intResult, toString(uint16(testInt)))
-		assertEqual(t, intResult, toString(uint32(testInt)))
-		assertEqual(t, intResult, toString(uint64(testInt)))
+		assertEqual(t, intString, toString(uint(realInt)))
+		assertEqual(t, intString, toString(uint8(realInt)))
+		assertEqual(t, intString, toString(uint16(realInt)))
+		assertEqual(t, intString, toString(uint32(realInt)))
+		assertEqual(t, intString, toString(uint64(realInt)))
 
-		assertEqual(t, floatResult, toString(testFloat))
-		assertEqual(t, floatResult, toString(float32(testFloat)))
+		assertEqual(t, fltString, toString(realFlt))
+		assertEqual(t, fltString, toString(float32(realFlt)))
 
-		assertEqual(t, "int", toString(reflect.TypeOf(testInt)))
 	})
 
 	t.Run("panic on invalid type", func(t *testing.T) {
 		assertPanics(t, func() {
 			toString(Simple{})
+		})
+	})
+}
+
+func TestFromString(t *testing.T) {
+	t.Run("Valid conversions", func(t *testing.T) {
+		assertEqual(t, "ABCD", fromString("string{}", "ABCD").Interface())
+
+		assertEqual(t, true, fromString(true, "true").Interface())
+
+		assertEqual(t, realInt, fromString(realInt, intString).Interface())
+		assertEqual(t, int8(realInt), fromString(int8(realInt), intString).Interface())
+		assertEqual(t, int16(realInt), fromString(int16(realInt), intString).Interface())
+		assertEqual(t, int32(realInt), fromString(int32(realInt), intString).Interface())
+		assertEqual(t, int64(realInt), fromString(int64(realInt), intString).Interface())
+
+		assertEqual(t, uint(realInt), fromString(uint(realInt), intString).Interface())
+		assertEqual(t, uint8(realInt), fromString(uint8(realInt), intString).Interface())
+		assertEqual(t, uint16(realInt), fromString(uint16(realInt), intString).Interface())
+		assertEqual(t, uint32(realInt), fromString(uint32(realInt), intString).Interface())
+		assertEqual(t, uint64(realInt), fromString(uint64(realInt), intString).Interface())
+
+		assertEqual(t, realFlt, fromString(realFlt, fltString).Interface())
+		assertEqual(t, float32(realFlt), fromString(float32(realFlt), fltString).Interface())
+	})
+
+	t.Run("Panic on parseError", func(t *testing.T) {
+		assertPanics(t, func() {
+			fromString(true, "100")
+		})
+	})
+
+	t.Run("Panic on invalid type", func(t *testing.T) {
+		assertPanics(t, func() {
+			fromString(Simple{}, "ABCD")
 		})
 	})
 }

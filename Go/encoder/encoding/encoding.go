@@ -18,10 +18,7 @@ import (
 )
 
 // Heading information, reflected
-type Heading struct {
-	Name string
-	Type reflect.Type // Not used yet, may be needed for decoding
-}
+type Heading = string
 
 // Header ordered list of Headings
 type Header = []Heading
@@ -41,7 +38,7 @@ func DeriveHeader(v interface{}) Header {
 	for i := 0; i < val.NumField(); i++ {
 		f := val.Type().Field(i)
 		if fieldReadable(v, f) {
-			out = append(out, Heading{f.Name, f.Type})
+			out = append(out, f.Name)
 		}
 	}
 	return out
@@ -97,7 +94,7 @@ func MakeRecord(v interface{}, header Header) []string {
 	out := make([]string, 0)
 
 	for _, heading := range header {
-		field := val.FieldByName(heading.Name)
+		field := val.FieldByName(heading)
 		str := toString(field.Interface())
 		out = append(out, str)
 	}
@@ -115,4 +112,92 @@ func MakeRecords(v interface{}, header Header) [][]string {
 		out[i] = record
 	}
 	return out
+}
+
+func fromString(v interface{}, entry string) reflect.Value {
+	// complex number support?
+	// Tagged conversion specifiers?
+	var out interface{}
+	var err error
+
+	switch _val := v.(type) {
+	case string:
+		reflect.TypeOf(_val) // nop
+		out = entry
+
+	case bool:
+		out, err = strconv.ParseBool(entry)
+
+	case float32:
+		var flt float64
+		flt, err = strconv.ParseFloat(entry, 32)
+		out = float32(flt)
+	case float64:
+		out, err = strconv.ParseFloat(entry, 64)
+
+	case int:
+		var i int64
+		i, err = strconv.ParseInt(entry, 0, 64)
+		out = int(i)
+	case int8:
+		var i int64
+		i, err = strconv.ParseInt(entry, 0, 8)
+		out = int8(i)
+	case int16:
+		var i int64
+		i, err = strconv.ParseInt(entry, 0, 16)
+		out = int16(i)
+	case int32: // distinguish from rune by tag?
+		var i int64
+		i, err = strconv.ParseInt(entry, 0, 32)
+		out = int32(i)
+	case int64:
+		out, err = strconv.ParseInt(entry, 0, 64)
+
+	case uint:
+		var i uint64
+		i, err = strconv.ParseUint(entry, 0, 64)
+		out = uint(i)
+	case uint8: // distinguish from byte by tag?
+		var i uint64
+		i, err = strconv.ParseUint(entry, 0, 8)
+		out = uint8(i)
+	case uint16:
+		var i uint64
+		i, err = strconv.ParseUint(entry, 0, 16)
+		out = uint16(i)
+	case uint32:
+		var i uint64
+		i, err = strconv.ParseUint(entry, 0, 32)
+		out = uint32(i)
+	case uint64:
+		out, err = strconv.ParseUint(entry, 0, 64)
+
+	default:
+		panic(fmt.Sprintf("Type '%s' does not support strconv or Stringable conversion", reflect.TypeOf(v).String()))
+	}
+
+	// Not great handling for parser, will do for now
+	if err != nil {
+		panic(err)
+	}
+
+	return reflect.ValueOf(out)
+}
+
+// FromRecord create type from record & header into ptr
+func FromRecord(v interface{}, header, record []string) {
+	val := reflect.ValueOf(v).Elem()
+	typ := reflect.TypeOf(v).Elem()
+	for i, heading := range header {
+		tfield, found := typ.FieldByName(heading)
+		if !found || tfield.Anonymous {
+			continue
+		}
+
+		fieldval := val.FieldByName(heading)
+		newval := fromString(fieldval.Interface(), record[i])
+
+		fieldval.Set(newval)
+	}
 }
