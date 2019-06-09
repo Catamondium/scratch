@@ -88,7 +88,7 @@ func toString(v interface{}) string {
 	}
 }
 
-// MakeRecord create a **single** record from a struct and header
+// MakeRecord create a **single** record from a struct & header
 func MakeRecord(v interface{}, header Header) []string {
 	val := reflect.ValueOf(v)
 	out := make([]string, 0)
@@ -101,7 +101,7 @@ func MakeRecord(v interface{}, header Header) []string {
 	return out
 }
 
-// MakeRecords create a set of records from []struct and hader
+// MakeRecords create a set of records from []struct & hader
 func MakeRecords(v interface{}, header Header) [][]string {
 	val := reflect.ValueOf(v)
 
@@ -177,7 +177,7 @@ func fromString(v interface{}, entry string) reflect.Value {
 		panic(fmt.Sprintf("Type '%s' does not support strconv or Stringable conversion", reflect.TypeOf(v).String()))
 	}
 
-	// Not great handling for parser, will do for now
+	// Not great h&ling for parser, will do for now
 	if err != nil {
 		panic(err)
 	}
@@ -200,4 +200,17 @@ func FromRecord(v interface{}, header, record []string) {
 
 		fieldval.Set(newval)
 	}
+}
+
+// FromRecords create a set of structs from records & hader
+func FromRecords(v interface{}, header []string, records [][]string) {
+	slce := reflect.ValueOf(v).Elem()
+	typ := reflect.TypeOf(v).Elem().Elem()
+
+	for _, record := range records {
+		one := reflect.Zero(typ).Interface()
+		FromRecord(&one, header, record)
+		reflect.Append(slce, reflect.ValueOf(one))
+	}
+	/// BROKEN
 }

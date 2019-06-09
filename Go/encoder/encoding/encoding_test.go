@@ -24,7 +24,7 @@ Name|Freq|Val # REQUIRED
 Dan|5|55
 Jen|8|9.5`
 
-// Return standardised option set
+// Return st&ardised option set
 func genReader(r io.Reader) *csv.Reader {
 	ret := csv.NewReader(r)
 	ret.Comma = '|'
@@ -32,7 +32,7 @@ func genReader(r io.Reader) *csv.Reader {
 	return ret
 }
 
-// Return standardised option set
+// Return st&ardised option set
 func genWriter(r io.Writer) *csv.Writer {
 	ret := csv.NewWriter(r)
 	ret.Comma = '|'
@@ -91,13 +91,13 @@ func TestHeaderGen(t *testing.T) {
 
 var (
 	sampleSimple       = Simple{"Adam", 50, 1.00, 0}
-	sampleSimpleResult = []string{"Adam", "50", "1E+00"}
+	sampleSimpleRecord = []string{"Adam", "50", "1E+00"}
 )
 
 func TestRecordGen(t *testing.T) {
 	t.Run("Simple record generation", func(t *testing.T) {
 		source := sampleSimple
-		expected := sampleSimpleResult
+		expected := sampleSimpleRecord
 
 		heading := DeriveHeader(source)
 		recieved := MakeRecord(source, heading)
@@ -115,9 +115,9 @@ func TestRecordsGen(t *testing.T) {
 		}
 
 		expected := [][]string{
-			sampleSimpleResult,
-			sampleSimpleResult,
-			sampleSimpleResult,
+			sampleSimpleRecord,
+			sampleSimpleRecord,
+			sampleSimpleRecord,
 		}
 
 		heading := DeriveHeader(source[0])
@@ -142,12 +142,12 @@ func TestSimpleGen(t *testing.T) {
 	t.Run("Single Simple decode", func(t *testing.T) {
 		expected := sampleSimple
 		header := []string{"Name", "Freq", "Val"}
-		record := sampleSimpleResult
+		record := sampleSimpleRecord
 
-		recieved := &Simple{}
-		FromRecord(recieved, header, record)
+		recieved := Simple{}
+		FromRecord(&recieved, header, record)
 
-		assertEqual(t, expected, *recieved)
+		assertEqual(t, expected, recieved)
 	})
 
 	t.Run("Anonymous fields ignored", func(t *testing.T) {
@@ -155,10 +155,10 @@ func TestSimpleGen(t *testing.T) {
 		header := []string{"int"}
 		record := []string{"50"}
 
-		recieved := &Simple{}
-		FromRecord(recieved, header, record)
+		recieved := Simple{}
+		FromRecord(&recieved, header, record)
 
-		assertEqual(t, expected, *recieved)
+		assertEqual(t, expected, recieved)
 	})
 
 	t.Run("Absent fields ignored", func(t *testing.T) {
@@ -166,10 +166,31 @@ func TestSimpleGen(t *testing.T) {
 		header := []string{"NoneField"}
 		record := []string{"50"}
 
-		recieved := &Simple{}
-		FromRecord(recieved, header, record)
+		recieved := Simple{}
+		FromRecord(&recieved, header, record)
 
-		assertEqual(t, expected, *recieved)
+		assertEqual(t, expected, recieved)
+	})
+}
+
+func TestSimplesGen(t *testing.T) {
+	t.Run("Simples from mutiple records", func(t *testing.T) {
+		expected := []Simple{
+			sampleSimple,
+			sampleSimple,
+			sampleSimple,
+		}
+		header := []string{"Name", "Freq", "Val"}
+		records := [][]string{
+			sampleSimpleRecord,
+			sampleSimpleRecord,
+			sampleSimpleRecord,
+		}
+
+		recieved := make([]Simple, 0)
+		FromRecords(&recieved, header, records)
+
+		assertEqual(t, expected, recieved)
 	})
 }
 
