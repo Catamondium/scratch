@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from contextlib import redirect_stdout, ContextDecorator, contextmanager
+from contextlib import ContextDecorator
 from io import StringIO
 import sys
 
