@@ -1,3 +1,4 @@
+from functools import wraps
 decorated = {"simple": [], "param": []}
 # simple example
 
@@ -5,6 +6,7 @@ decorated = {"simple": [], "param": []}
 def simple(func):
     decorated["simple"].append(func)
 
+    @wraps(func)  # Propagates docstring & other metadata
     def wrapsim(*argv):
         print(f"simple:\t{func.__name__}")
         return func(*argv)
@@ -21,10 +23,11 @@ def param(myval=None):
         decorated["param"].append(func)
         name = func.__name__
 
+        @wraps(func)
         def wrapparam(*argv):  # inner to return
             arg_str = ", ".join(repr(arg) for arg in argv)
             result = func(*argv)
-            print(f"{name}({arg_str}):\t{result:r}")
+            print(f"{name}({arg_str}):\t{result:d}")
             return result
         return wrapparam
     return decorator
@@ -54,4 +57,5 @@ add(1, 2, 3, 4, 5)  # equivalent to deco()(add)
 sub(1, 2)  # equivalent to param(22)(sub)
 mul(2, 4, 6, 8)
 print(f"mul:\t{mul(1, 2, 3)}")  # 6 expected
-print(decorated)
+print({k: [x.__name__ for x in v]
+       for k, v in decorated.items()})

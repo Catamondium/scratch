@@ -15,9 +15,11 @@ class Deck:
                        for rank in self.ranks
                        for suit in self.suits.keys()]
 
+    # len(self) response
     def __len__(self):
         return len(self._cards)
 
+    # Index operator
     def __getitem__(self, position):
         return self._cards[position]
 
