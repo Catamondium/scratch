@@ -4,7 +4,7 @@ from io import StringIO
 import sys
 
 
-class Indent:
+class Indent(ContextDecorator):
     def __init__(self, indent='\t'):
         self.stream = StringIO()
         self.indent = indent
@@ -23,8 +23,14 @@ class Indent:
         return False  # rethrow exceptions
 
 
+@Indent("iFn ")
+def indentfunc(string):
+    print(string)
+
+
 if __name__ == "__main__":
     with Indent(' '*4):
         print("ass")
         with Indent(' '*4):
             print("bass")
+    indentfunc("ABCDEF")
