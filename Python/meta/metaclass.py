@@ -15,7 +15,7 @@ class MetaHook(type):
     def __new__(cls, name, bases, dct):
         newdct = {}
         for k, v in dct.items():
-            if getattr(v, 'is_hook', False):
+            if hasattr(v, 'is_hook'):
                 newdct[f"__{k}__"] = v
             else:
                 newdct[k] = v

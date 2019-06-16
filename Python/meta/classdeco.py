@@ -16,7 +16,8 @@ def callDebug(func):
         print(
             f"""\
 {name}({', '.join([repr(x) for x in args])}{keyparams(**kwargs)}\
-{f' -> {result}' if result else ''}""")
+{f' -> {result}' if result else ''} """)
+        return result
     return thing
 
 
@@ -35,7 +36,7 @@ def callDebugClass(cls):
     the decorator may not.
     """
     for k, v in cls.__dict__.items():
-        if callable(v) and not getattr(v, 'noDeco', False) and k != '__init__':
+        if callable(v) and not hasattr(v, 'noDeco') and k != '__init__':
             setattr(cls, k, callDebug(v))  # propagate callDebug
     return cls
 
@@ -67,5 +68,5 @@ def add(x, y, key=None):
 if __name__ == "__main__":
     add(2, 4, key="ABC")
     vertex1, vertex2 = Vec(1, 0), Vec(0, 1)
-    print(vertex1 + vertex2)
-    print(abs(Vec(3, 4)))
+    vertex1 + vertex2
+    abs(Vec(3, 4))
