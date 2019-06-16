@@ -19,7 +19,7 @@ def param(myval=None):
     if myval:
         print(f"Param: {myval}")
 
-    def decorator(func):  # true decorator
+    def decorator(func):  # real decorator
         decorated["param"].append(func)
         name = func.__name__
 
