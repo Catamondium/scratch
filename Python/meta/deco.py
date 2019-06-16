@@ -1,21 +1,21 @@
+#!/usr/bin/env python3
 from functools import wraps
 decorated = {"simple": [], "param": []}
-# simple example
 
 
 def simple(func):
+    """Simple decorator example"""
     decorated["simple"].append(func)
 
-    @wraps(func)  # Propagates docstring & other metadata
+    @wraps(func)  # Propagates function metadata
     def wrapsim(*argv):
         print(f"simple:\t{func.__name__}")
         return func(*argv)
     return wrapsim
 
-# parameterised example
-
 
 def param(myval=None):
+    """Parameterised decorator example"""
     if myval:
         print(f"Param: {myval}")
 
@@ -33,16 +33,16 @@ def param(myval=None):
     return decorator
 
 
-@param()
+@param()  # param()(add)
 def add(*argv):
     return sum(argv)
 
 
-@param(22)
+@param(22)  # param(22)(add)
 def sub(x, y):
     return x - y
 
-# stacked decorators, NOTE no commutativity
+# stacked decorators, NOTE NOT commutative
 @param()
 @simple
 def mul(*argv):
@@ -52,10 +52,10 @@ def mul(*argv):
     return product
 
 
-# main
-add(1, 2, 3, 4, 5)  # equivalent to deco()(add)
-sub(1, 2)  # equivalent to param(22)(sub)
-mul(2, 4, 6, 8)
-print(f"mul:\t{mul(1, 2, 3)}")  # 6 expected
-print({k: [x.__name__ for x in v]
-       for k, v in decorated.items()})
+if __name__ == "__main__":
+    add(1, 2, 3, 4, 5)
+    sub(1, 2)
+    mul(2, 4, 6, 8)
+    print(f"mul:\t{mul(1, 2, 3)}")
+    print({k: [x.__name__ for x in v]
+           for k, v in decorated.items()})
