@@ -1,17 +1,12 @@
 package csvdecoder
 
 /* reflective csv encoder TODO
-Decoder type
-	newDecoder(r io.Reader) *Decoder
-	embed csv.Reader?
-	(dec *Decoder) Decode(vs interface{}) error // vs must be slice
-Encoder type
-	newEncoder(r io.Writer) *Encoder
-	embed csv.Writer?
-	(enc *Encoder) Encode(vs interface{}) error // vs must be &slice
-*/
+ * * Decoder/encoder, embed csv reader/writer?
+ * Proper error propagation via return values
+ */
 
 import (
+	"encoding/csv"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -28,12 +23,96 @@ func fieldReadable(v interface{}, f reflect.StructField) bool {
 	return !f.Anonymous
 }
 
-// DeriveHeader derive header information
+// Decoder performs decoding via csv.Reader
+type Decoder struct {
+	Csvreader *csv.Reader
+	header    Header
+}
+
+// Encoder performs encoding via csv.Writer
+type Encoder struct {
+	Csvwriter   *csv.Writer
+	headWritten bool
+}
+
+// NewEncoder create new Encder from csv.Writer
+func NewEncoder(r *csv.Writer) *Encoder {
+	return &Encoder{r, false}
+}
+
+// One encodes struct v to csv writer
+func (d *Encoder) One(v interface{}) {
+	header := deriveHeader(v)
+	record := makeRecord(v, header)
+	if !d.headWritten {
+		d.Csvwriter.Write(header)
+		d.headWritten = true
+	}
+
+	err := d.Csvwriter.Write(record)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// All encodes []struct v to csv writer
+func (d *Encoder) All(v interface{}) {
+	header := deriveHeader(v)
+	record := makeRecords(v, header)
+	if !d.headWritten {
+		d.Csvwriter.Write(header)
+		d.headWritten = true
+	}
+
+	err := d.Csvwriter.WriteAll(record)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// One decodes into struct pointed by v
+// Reads a single record (after header)
+func (d *Decoder) One(v interface{}) {
+	record, err := d.Csvreader.Read()
+	if err != nil {
+		panic(err)
+	}
+
+	makeStruct(v, d.header, record)
+}
+
+// All decodes into []struct pointed by v
+// Reads all remaining records (after header)
+func (d *Decoder) All(v interface{}) {
+	records, err := d.Csvreader.ReadAll()
+	if err != nil {
+		panic(err)
+	}
+
+	makeStructs(v, d.header, records)
+}
+
+// NewDecoder create new Decoder from csv.Reader
+func NewDecoder(r *csv.Reader) *Decoder {
+	// Headers presence is ASSUMED
+	header, err := r.Read()
+	if err != nil {
+		panic(err)
+	}
+	return &Decoder{r, header}
+}
+
+// deriveHeader derive header information
 // from named public fields
 // v is a concrete non-ptr type
-func DeriveHeader(v interface{}) Header {
+func deriveHeader(v interface{}) Header {
 	out := make(Header, 0)
 	val := reflect.ValueOf(v)
+	typ := reflect.TypeOf(v)
+
+	if typ.Kind() == reflect.Slice {
+		val = reflect.New(typ.Elem()).Elem()
+	}
 
 	for i := 0; i < val.NumField(); i++ {
 		f := val.Type().Field(i)
@@ -88,8 +167,8 @@ func toString(v interface{}) string {
 	}
 }
 
-// MakeRecord create a **single** record from a struct & header
-func MakeRecord(v interface{}, header Header) []string {
+// makeRecord create a **single** record from a struct & header
+func makeRecord(v interface{}, header Header) []string {
 	val := reflect.ValueOf(v)
 	out := make([]string, 0)
 
@@ -101,14 +180,14 @@ func MakeRecord(v interface{}, header Header) []string {
 	return out
 }
 
-// MakeRecords create a set of records from []struct & hader
-func MakeRecords(v interface{}, header Header) [][]string {
+// makeRecords create a set of records from []struct & hader
+func makeRecords(v interface{}, header Header) [][]string {
 	val := reflect.ValueOf(v)
 
 	size := val.Len()
 	out := make([][]string, size)
 	for i := 0; i < size; i++ {
-		record := MakeRecord(val.Index(i).Interface(), header)
+		record := makeRecord(val.Index(i).Interface(), header)
 		out[i] = record
 	}
 	return out

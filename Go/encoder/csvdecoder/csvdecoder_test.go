@@ -1,10 +1,12 @@
 package csvdecoder
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -18,11 +20,6 @@ type Simple struct {
 func (s Simple) GoString() string {
 	return fmt.Sprintf("Simple{%q, %d, %.2f, %d}", s.Name, s.Freq, s.Val, s.int)
 }
-
-const simpleSample = `
-Name|Freq|Val # REQUIRED
-Dan|5|55
-Jen|8|9.5`
 
 // Return st&ardised option set
 func genReader(r io.Reader) *csv.Reader {
@@ -74,17 +71,17 @@ func TestHeaderGen(t *testing.T) {
 			"Val",
 		}
 
-		recieved := DeriveHeader(Simple{})
+		recieved := deriveHeader(Simple{})
 		sliceEqual(t, expected, recieved)
 	})
 
 	t.Run("Panic on primative & ptr types", func(t *testing.T) {
 		assertPanics(t, func() {
-			DeriveHeader(50)
+			deriveHeader(50)
 		})
 
 		assertPanics(t, func() {
-			DeriveHeader(&Simple{})
+			deriveHeader(&Simple{})
 		})
 	})
 }
@@ -99,8 +96,8 @@ func TestRecordGen(t *testing.T) {
 		source := sampleSimple
 		expected := sampleSimpleRecord
 
-		heading := DeriveHeader(source)
-		recieved := MakeRecord(source, heading)
+		heading := deriveHeader(source)
+		recieved := makeRecord(source, heading)
 
 		sliceEqual(t, expected, recieved)
 	})
@@ -120,8 +117,8 @@ func TestRecordsGen(t *testing.T) {
 			sampleSimpleRecord,
 		}
 
-		heading := DeriveHeader(source[0])
-		recieved := MakeRecords(source, heading)
+		heading := deriveHeader(source[0])
+		recieved := makeRecords(source, heading)
 
 		sliceEqual(t, expected, recieved)
 	})
@@ -129,11 +126,11 @@ func TestRecordsGen(t *testing.T) {
 	t.Run("Panic on non-slice", func(t *testing.T) {
 		header := make([]Heading, 0)
 		assertPanics(t, func() {
-			MakeRecords(Simple{}, header)
+			makeRecords(Simple{}, header)
 		})
 
 		assertPanics(t, func() {
-			MakeRecords(&Simple{}, header)
+			makeRecords(&Simple{}, header)
 		})
 	})
 }
@@ -264,5 +261,55 @@ func TestFromString(t *testing.T) {
 		assertPanics(t, func() {
 			fromString(Simple{}, "ABCD")
 		})
+	})
+}
+
+const headedCSV = `Name|Freq|Val
+Dan|11|1.111E+00
+Jen|22|2.222E+00`
+
+var headedRecords = []Simple{
+	Simple{"Dan", 11, 1.111E+00, 0},
+	Simple{"Jen", 22, 2.222E+00, 0},
+}
+
+func TestDecoder(t *testing.T) {
+	t.Run("Prefer fileHeader, decode single", func(t *testing.T) {
+		expected := headedRecords[0]
+		recieved := Simple{}
+
+		decoder := NewDecoder(genReader(strings.NewReader(headedCSV)))
+		decoder.One(&recieved)
+
+		assertEqual(t, expected, recieved)
+	})
+
+	t.Run("Decode all success", func(t *testing.T) {
+		expected := headedRecords
+		recieved := make([]Simple, 0)
+
+		decoder := NewDecoder(genReader(strings.NewReader(headedCSV)))
+		decoder.All(&recieved)
+
+		assertEqual(t, expected, recieved)
+	})
+}
+
+func TestEncoder(t *testing.T) {
+	t.Run("Prefer fields, encode single", func(t *testing.T) {
+		recieved := bytes.NewBufferString("")
+		encoder := NewEncoder(genWriter(recieved))
+		encoder.One(Simple{"Dan", 11, 1.111E+00, 0})
+		encoder.Csvwriter.Flush()
+
+		sliceEqual(t, headedCSV[:31], recieved.String())
+	})
+
+	t.Run("Encode all", func(t *testing.T) {
+		recieved := bytes.NewBufferString("")
+		encoder := NewEncoder(genWriter(recieved))
+		encoder.All(headedRecords)
+
+		sliceEqual(t, headedCSV, strings.TrimSpace(recieved.String()))
 	})
 }
