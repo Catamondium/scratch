@@ -13,11 +13,13 @@ import (
 	"strconv"
 )
 
-// Heading information, reflected
-type Heading = string
+type (
+	// Heading information, reflected
+	Heading = string
 
-// Header ordered list of Headings
-type Header = []Heading
+	// Header ordered list of Headings
+	Header = []Heading
+)
 
 // True for named, settable fields
 func fieldReadable(v interface{}, f reflect.StructField) bool {
@@ -129,6 +131,61 @@ func deriveHeader(v interface{}) Header {
 	return out
 }
 
+// makeRecord create a **single** record from a struct & header
+func makeRecord(v interface{}, header Header) []string {
+	val := reflect.ValueOf(v)
+	out := make([]string, 0)
+
+	for _, heading := range header {
+		field := val.FieldByName(heading)
+		str := toString(field.Interface())
+		out = append(out, str)
+	}
+	return out
+}
+
+// makeRecords create a set of records from []struct & hader
+func makeRecords(v interface{}, header Header) [][]string {
+	val := reflect.ValueOf(v)
+
+	size := val.Len()
+	out := make([][]string, size)
+	for i := 0; i < size; i++ {
+		record := makeRecord(val.Index(i).Interface(), header)
+		out[i] = record
+	}
+	return out
+}
+
+// makeStruct create type from record & header into ptr
+func makeStruct(v interface{}, header, record []string) {
+	val := reflect.ValueOf(v).Elem()
+	typ := reflect.TypeOf(v).Elem()
+	for i, heading := range header {
+		tfield, found := typ.FieldByName(heading)
+		if !found || tfield.Anonymous {
+			continue
+		}
+
+		fieldval := val.FieldByName(heading)
+		newval := fromString(fieldval.Interface(), record[i])
+
+		fieldval.Set(newval)
+	}
+}
+
+// makeStructs create a set of structs from records & hader
+func makeStructs(v interface{}, header []string, records [][]string) {
+	slce := reflect.ValueOf(v).Elem()
+	typ := reflect.TypeOf(v).Elem().Elem()
+
+	for _, record := range records {
+		tmp := reflect.New(typ)
+		makeStruct(tmp.Interface(), header, record)
+		slce.Set(reflect.Append(slce, tmp.Elem()))
+	}
+}
+
 func toString(v interface{}) string {
 	// complex number support?
 	// Tagged conversion specifiers?
@@ -171,32 +228,6 @@ func toString(v interface{}) string {
 	default:
 		panic(fmt.Sprintf("Type '%s' does not support strconv or Stringable conversion", reflect.TypeOf(v).String()))
 	}
-}
-
-// makeRecord create a **single** record from a struct & header
-func makeRecord(v interface{}, header Header) []string {
-	val := reflect.ValueOf(v)
-	out := make([]string, 0)
-
-	for _, heading := range header {
-		field := val.FieldByName(heading)
-		str := toString(field.Interface())
-		out = append(out, str)
-	}
-	return out
-}
-
-// makeRecords create a set of records from []struct & hader
-func makeRecords(v interface{}, header Header) [][]string {
-	val := reflect.ValueOf(v)
-
-	size := val.Len()
-	out := make([][]string, size)
-	for i := 0; i < size; i++ {
-		record := makeRecord(val.Index(i).Interface(), header)
-		out[i] = record
-	}
-	return out
 }
 
 func fromString(v interface{}, entry string) reflect.Value {
@@ -268,33 +299,4 @@ func fromString(v interface{}, entry string) reflect.Value {
 	}
 
 	return reflect.ValueOf(out)
-}
-
-// makeStruct create type from record & header into ptr
-func makeStruct(v interface{}, header, record []string) {
-	val := reflect.ValueOf(v).Elem()
-	typ := reflect.TypeOf(v).Elem()
-	for i, heading := range header {
-		tfield, found := typ.FieldByName(heading)
-		if !found || tfield.Anonymous {
-			continue
-		}
-
-		fieldval := val.FieldByName(heading)
-		newval := fromString(fieldval.Interface(), record[i])
-
-		fieldval.Set(newval)
-	}
-}
-
-// makeStructs create a set of structs from records & hader
-func makeStructs(v interface{}, header []string, records [][]string) {
-	slce := reflect.ValueOf(v).Elem()
-	typ := reflect.TypeOf(v).Elem().Elem()
-
-	for _, record := range records {
-		tmp := reflect.New(typ)
-		makeStruct(tmp.Interface(), header, record)
-		slce.Set(reflect.Append(slce, tmp.Elem()))
-	}
 }
