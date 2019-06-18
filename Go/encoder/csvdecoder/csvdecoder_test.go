@@ -278,7 +278,7 @@ func TestDecoder(t *testing.T) {
 		expected := headedRecords[0]
 		recieved := Simple{}
 
-		decoder := NewDecoder(genReader(strings.NewReader(headedCSV)))
+		decoder, _ := NewDecoder(genReader(strings.NewReader(headedCSV)))
 		decoder.One(&recieved)
 
 		assertEqual(t, expected, recieved)
@@ -288,10 +288,18 @@ func TestDecoder(t *testing.T) {
 		expected := headedRecords
 		recieved := make([]Simple, 0)
 
-		decoder := NewDecoder(genReader(strings.NewReader(headedCSV)))
+		decoder, _ := NewDecoder(genReader(strings.NewReader(headedCSV)))
 		decoder.All(&recieved)
 
 		assertEqual(t, expected, recieved)
+	})
+
+	t.Run("Err on empty", func(t *testing.T) {
+		_, err := NewDecoder(genReader(strings.NewReader("")))
+
+		if err == nil {
+			t.Error("Failed to produce error")
+		}
 	})
 }
 

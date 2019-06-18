@@ -2,7 +2,8 @@ package csvdecoder
 
 /* reflective csv encoder TODO
  * * Decoder/encoder, embed csv reader/writer?
- * Proper error propagation via return values
+ * Encoder read in header for non-empty files
+ * Propagate toString, fromString & reflective errors?
  */
 
 import (
@@ -41,7 +42,7 @@ func NewEncoder(r *csv.Writer) *Encoder {
 }
 
 // One encodes struct v to csv writer
-func (d *Encoder) One(v interface{}) {
+func (d *Encoder) One(v interface{}) error {
 	header := deriveHeader(v)
 	record := makeRecord(v, header)
 	if !d.headWritten {
@@ -51,12 +52,14 @@ func (d *Encoder) One(v interface{}) {
 
 	err := d.Csvwriter.Write(record)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
 // All encodes []struct v to csv writer
-func (d *Encoder) All(v interface{}) {
+func (d *Encoder) All(v interface{}) error {
 	header := deriveHeader(v)
 	record := makeRecords(v, header)
 	if !d.headWritten {
@@ -66,40 +69,43 @@ func (d *Encoder) All(v interface{}) {
 
 	err := d.Csvwriter.WriteAll(record)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
+}
+
+// NewDecoder create new Decoder from csv.Reader
+func NewDecoder(r *csv.Reader) (*Decoder, error) {
+	// Headers presence is ASSUMED
+	header, err := r.Read()
+	if err != nil {
+		return nil, err
+	}
+	return &Decoder{r, header}, nil
 }
 
 // One decodes into struct pointed by v
 // Reads a single record (after header)
-func (d *Decoder) One(v interface{}) {
+func (d *Decoder) One(v interface{}) error {
 	record, err := d.Csvreader.Read()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	makeStruct(v, d.header, record)
+	return nil
 }
 
 // All decodes into []struct pointed by v
 // Reads all remaining records (after header)
-func (d *Decoder) All(v interface{}) {
+func (d *Decoder) All(v interface{}) error {
 	records, err := d.Csvreader.ReadAll()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	makeStructs(v, d.header, records)
-}
-
-// NewDecoder create new Decoder from csv.Reader
-func NewDecoder(r *csv.Reader) *Decoder {
-	// Headers presence is ASSUMED
-	header, err := r.Read()
-	if err != nil {
-		panic(err)
-	}
-	return &Decoder{r, header}
+	return nil
 }
 
 // deriveHeader derive header information
