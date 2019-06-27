@@ -7,7 +7,7 @@ macro_rules! Callsig {
                ret
                }
    };
-   
+
    (fn $name:ident($($params:ident: $types:ty),*) $body:block) => {
        Callsig! {
            fn $name($($params: $types),*) -> () $body
@@ -26,7 +26,6 @@ Callsig! {
         println!("{}", 55);
     }
 }
-
 
 fn main() {
     add(1, 2);

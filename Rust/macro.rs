@@ -24,7 +24,7 @@ fn main() {
     let v = myvec![1, 2, 3, 4];
     println!("{:?}", v);
 
-    let m = mymap!{
+    let m = mymap! {
         a => 1,
         b => 2,
         c => 3

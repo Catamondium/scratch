@@ -29,12 +29,25 @@ where
 }
 
 fn main() {
-    let iter = [1, 2, 3].into_iter();
+    let iter = [1, 2, 3].into_iter().cycle();
     let f = |x| x * 5;
-    let mappy = MyMap::new(iter, f);
+    let mappy = MyMap::new(iter.clone(), f);
 
-    println!("{:?}", mappy.size_hint());
-    for i in mappy.take(3) {
+    println!("Fn\n---");
+    for i in mappy.take(6) {
         println!("{}", i)
+    }
+
+    let mut n: i64 = 0;
+    {
+        let fmut = |x| {
+            n += 1;
+            x + n
+        };
+        let mutmappy = MyMap::new(iter.clone(), fmut);
+        println!("FnMut\n---");
+        for i in mutmappy.take(6) {
+            println!("{}", i)
+        }
     }
 }
