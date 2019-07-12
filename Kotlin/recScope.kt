@@ -16,13 +16,9 @@ class Indenter(val pref: String = "\t") : Liner() {
     override fun toString() = body.map({pref + it}).joinToString(separator="\n")
 }
 
-fun liner(init: Liner.() -> Unit): Liner {
-    return Liner().apply(init)
-}
+fun liner(init: Liner.() -> Unit): Liner = Liner().apply(init)
 
-fun indenter(pref: String = "\t", init: Indenter.() -> Unit) : Indenter {
-    return Indenter(pref).apply(init)
-}
+fun indenter(pref: String = "\t", init: Indenter.() -> Unit) : Indenter = Indenter(pref).apply(init)
 
 fun main() {
     //println(+"Hello, world!!!") // Unresolved reference: +
@@ -32,7 +28,7 @@ fun main() {
         +"3: CASS"
     })
 
-    println(indenter("\t") {
+    println(indenter {
         +"a: ASS"
         +"b: BASS"
     })
