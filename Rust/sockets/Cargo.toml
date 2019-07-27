@@ -1,0 +1,16 @@
+[package]
+name = "sockets"
+version = "0.1.0"
+authors = ["Catamondium <30911915+Catamondium@users.noreply.github.com>"]
+edition = "2018"
+publish = false
+
+[dependencies]
+
+[[bin]]
+name = "client"
+path = "src/client/main.rs"
+
+[[bin]]
+name = "server"
+path = "src/server/main.rs"
