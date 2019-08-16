@@ -115,11 +115,13 @@ void Notepad::enumerate() {
     QString content = ui->maintext->document()->toPlainText();
 
     for(int i  = 0; i < content.count(); ++i) {
-        if(content[i].isPrint())
+        // Only display characters that can be seen and have glyphs
+        if(content[i].isPrint() && !content[i].isSpace())
             counter[content[i]] += 1;
     }
 
-    model.notify();
+    model.notify(); // send update
+    // Hide if empty
     if(counter.count() == 0)
         ui->table->hide();
     else

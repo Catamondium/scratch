@@ -1,4 +1,4 @@
-# Python 3.5.2
+#!/usr/bin/env python3
 import sys
 
 if (len(sys.argv) != 1

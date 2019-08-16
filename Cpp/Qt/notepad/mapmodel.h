@@ -27,10 +27,10 @@ public:
     inline void setMap(QMap<QChar, int> *map) {
         beginResetModel();
         _map = map;
-        endResetModel();
+        endResetModel(); // Notify observers
     }
 
-    inline void notify() {
+    inline void notify() { // Force notify observers
         beginResetModel();
         endResetModel();
     }

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Object testing:
 
 # custom iterable testing

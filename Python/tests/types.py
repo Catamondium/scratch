@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # like an anonymous C struct, may be multiple types, immutable
 mytuple = 'a', 255, 1.0, "biscuits", ("spam", "eggs")
 print(type(mytuple))

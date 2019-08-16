@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Generator testing
 sample = 1000000
 Result = []
