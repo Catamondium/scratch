@@ -51,12 +51,12 @@ class Trie:
         for chld in self.children.values():
             yield from chld.values(prec + self.ch)
 
-    def pairs(self, prec=""):
+    def items(self, prec=""):
         if self.isLeaf:
             yield (prec + self.ch, self.value)
 
         for chld in self.children.values():
-            yield from chld.pairs(prec + self.ch)
+            yield from chld.items(prec + self.ch)
 
     def print(self, indent=""):
         if self.root:
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     print("as" in t)
     print(list(t.keys()))
     print(list(t.values()))
-    print(list(t.pairs()))
+    print(list(t.items()))
