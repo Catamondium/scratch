@@ -51,7 +51,7 @@ class Mapper<I, R> implements Iterator<R> {
 class input {
     public static void main(String[] argv) {
         try (Scanner s = new Scanner(System.in)) {
-            Mapper<String, Integer> m = new Mapper<String, Integer>(s, (String x) -> x.length());
+            Mapper<String, Integer> m = new Mapper<String, Integer>(s, String::length);
             while (m.hasNext()) {
                 System.out.println(m.next());
             }
