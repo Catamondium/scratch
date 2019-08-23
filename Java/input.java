@@ -37,6 +37,7 @@ class Mapper<I, R> implements Iterator<R> {
     /**
      * @return applies fun to source.next()
      */
+    @Override
     public R next() throws NoSuchElementException {
         return fun.apply(source.next());
     }
