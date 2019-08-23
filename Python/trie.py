@@ -34,29 +34,59 @@ class Trie:
             return False
         return False
 
-    def keys(self, prec=""):
+    def keys(self, _prec=""):
+        """
+        yields all keys.\n
+        _prec is for internal use
+        """
         if self.isLeaf:
-            yield prec + self.ch
+            yield _prec + self.ch
 
         for chld in self.children.values():
-            yield from chld.keys(prec + self.ch)
+            yield from chld.keys(_prec + self.ch)
 
     def __iter__(self):
         return self.keys()
 
-    def values(self, prec=""):
+    def values(self, _prec=""):
+        """
+        yields all values.\n
+        _prec is for internal use
+        """
         if self.isLeaf:
             yield self.value
 
         for chld in self.children.values():
-            yield from chld.values(prec + self.ch)
+            yield from chld.values(_prec + self.ch)
 
-    def items(self, prec=""):
+    def items(self, _prec=""):
+        """
+        yields all key,value pairs.\n
+        _prec is for internal use
+        """
         if self.isLeaf:
-            yield (prec + self.ch, self.value)
+            yield (_prec + self.ch, self.value)
 
         for chld in self.children.values():
-            yield from chld.items(prec + self.ch)
+            yield from chld.items(_prec + self.ch)
+
+    def prefixSearch(self, prefix: str, _prec=""):
+        """
+        yields all keys with prefix.\n
+        _prec is for internal use
+        """
+        if prefix == "":
+            # prefix exhasuted, match all
+            yield from self.keys(_prec)
+        else:
+            try:
+                # prefix not exhausted, traverse further
+                chld = self.children[prefix[0]]
+                yield from chld.prefixSearch(prefix[1:], _prec + self.ch)
+            except IndexError:
+                yield None
+            except KeyError:
+                yield None
 
     def print(self, indent=""):
         if self.root:
@@ -78,7 +108,9 @@ if __name__ == "__main__":
     t = Trie()
     t.insert("ass", 25)
     t.insert("abb")
+    t.insert("abc")
     t.insert("bbb")
+    t.insert("ab")
     t.print()
     print("ass" in t)
     print("cass" in t)
@@ -86,3 +118,4 @@ if __name__ == "__main__":
     print(list(t.keys()))
     print(list(t.values()))
     print(list(t.items()))
+    print(list(t.prefixSearch("a")))
