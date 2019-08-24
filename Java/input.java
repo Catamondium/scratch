@@ -17,8 +17,8 @@ import java.util.NoSuchElementException;
 }
 
 /**
- * @param <I> input object
- * @param <R> output object
+ * @param <I> input element type
+ * @param <R> output element type
  */
 class Mapper<I, R> implements Iterator<R> {
     private Function<? super I, ? extends R> fun;
