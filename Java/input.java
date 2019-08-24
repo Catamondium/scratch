@@ -21,14 +21,14 @@ import java.util.NoSuchElementException;
  * @param <R> output object
  */
 class Mapper<I, R> implements Iterator<R> {
-    private Function<I, R> fun;
+    private Function<? super I, ? extends R> fun;
     private Iterator<I> source;
 
     /**
      * @param source iterator to wrap
      * @param fun    function to apply against source elements
      */
-    Mapper(Iterator<I> source, Function<I, R> fun) {
+    Mapper(Iterator<I> source, Function<? super I, ? extends R> fun) {
         this.source = source;
         this.fun = fun;
     }
@@ -51,7 +51,8 @@ class Mapper<I, R> implements Iterator<R> {
 class input {
     public static void main(String[] argv) {
         try (Scanner s = new Scanner(System.in)) {
-            Mapper<String, Integer> m = new Mapper<String, Integer>(s, String::length);
+            // Variance rules allow String -> Object transform
+            Mapper<String, Object> m = new Mapper<String, Object>(s, String::length);
             while (m.hasNext()) {
                 System.out.println(m.next());
             }
