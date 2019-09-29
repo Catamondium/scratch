@@ -4,6 +4,7 @@ import PySimpleGUI as sg
 from time import time
 from itertools import starmap
 from pprint import pprint
+from io import StringIO
 
 class CTimer:
     """
@@ -56,6 +57,12 @@ if __name__ == "__main__":
         if event in ('Quit', None):
             print("EXIT")
             break
+    w.close()
 
+    reader = StringIO()
     pprint(list(timer.presses()))
+
+    format = [[e, f"{t:.2}s"] for e,t in timer.presses()]
+    layout = [[sg.Table(format, headings=['EVENT', 'T'], justification='center')], [sg.Quit()]]
+    sg.Window('Log', layout).read()
     
