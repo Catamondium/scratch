@@ -35,7 +35,7 @@ class CTimer:
     @staticmethod
     def _convert(p, n, pt, nt):
         # Convert into nstate,delta form
-        return n, nt - pt
+        return p, nt - pt
     
     def presses(self):
         """
@@ -45,7 +45,7 @@ class CTimer:
 
 
 if __name__ == "__main__":
-    layout = [[sg.RealtimeButton('rtime')], [sg.Quit()]]
+    layout = [[sg.RealtimeButton('rtime'), sg.RealtimeButton('realtime')], [sg.Quit(bind_return_key=1)]]
     w = sg.Window('timings', layout)
     
     # Exclude unsustained events
