@@ -3,8 +3,6 @@
 import PySimpleGUI as sg
 from time import time
 from itertools import starmap
-from pprint import pprint
-from io import StringIO
 
 class CTimer:
     """
@@ -59,10 +57,7 @@ if __name__ == "__main__":
             break
     w.close()
 
-    reader = StringIO()
-    pprint(list(timer.presses()))
-
-    format = [[e, f"{t:.2}s"] for e,t in timer.presses()]
-    layout = [[sg.Table(format, headings=['EVENT', 'T'], justification='center')], [sg.Quit()]]
+    data = [[e, f"{t:.2}s"] for e,t in timer.presses() if e != sg.TIMEOUT_KEY]
+    layout = [[sg.Table(data, headings=['EVENT', 'T'], justification='center')], [sg.Quit(bind_return_key=1)]]
     sg.Window('Log', layout).read()
     
