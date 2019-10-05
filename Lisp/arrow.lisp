@@ -41,8 +41,8 @@
         (0 (funcall insert-fun acc next))  ; if none, use insert-fun
         (1 (substitute-if acc #'<>p next)) ; if 1, substitute next into accumulator at '<>'
         (t (let ((r (gensym "R")))         ; if many, subsitute the once-evaluated form in each
-          `(let ((,r ,acc))
-            ,(substitute-if r #'<>p next))))))))
+            `(let ((,r ,acc))
+              ,(substitute-if r #'<>p next))))))))
 
 (defarrow ->
   "Chain forms my first param"
