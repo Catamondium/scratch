@@ -1,5 +1,5 @@
-(defmacro with_gensyms ((&rest labels) &body body)
-    `(let ,(loop for n in labels collect `(,n (gensym)))
+(defmacro with_gensyms ((&rest names) &body body) ; recieve name list & body in context
+    `(let ,(loop for name in names collect `(,name (gensym))) ; let a gensym for each name in names
         ,@body
      )
 )
