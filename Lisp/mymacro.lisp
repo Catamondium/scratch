@@ -24,16 +24,16 @@
   (typecase a
     (number
       (cond
-	((= a b) (return-from <=> 0))
-	((< a b) (return-from <=> -1))
-	((> a b) (return-from <=> 1))
-	(t (return-from <=> nil))))
+        ((= a b) (return-from <=> 0))
+        ((< a b) (return-from <=> -1))
+        ((> a b) (return-from <=> 1))
+        (t (return-from <=> nil))))
     (string
       (cond
-	((string= a b) (return-from <=> 0))
-	((string< a b) (return-from <=> -1))
-	((string> a b) (return-from <=> 1))
-	(t (return-from <=> nil))))))
+        ((string= a b) (return-from <=> 0))
+        ((string< a b) (return-from <=> -1))
+        ((string> a b) (return-from <=> 1))
+        (t (return-from <=> nil))))))
 
 (setf (get '<=> 'cckey) "Mykey") ; apply 'cckey' property
 (format t "~S ~%"(get '<=> 'cckey)) ; display 'cckey' property
@@ -41,9 +41,10 @@
 ; anaphoric macros
 (defmacro awhile (expr &body body)
   "Anaphoric while loop, binding expr result to 'it'"
-  `(do ((it ,expr ,expr))
-	((not it))
-	,@body))
+  `(do
+    ((it ,expr ,expr))
+    ((not it))
+    ,@body))
 
 (defmacro alamda (params &body body)
   "Anaphoric lamda, binding lamda to 'self'"
@@ -66,7 +67,7 @@
 (funcall (alamda (x)
 	(format t "ALAMDA: R: ~D~%~S~%"
 		(+ 2 x) #'self))
-	 20)
+    20)
 
 (aif (atom pi)
      (format t "atomic pi? ~S~%" bol))
