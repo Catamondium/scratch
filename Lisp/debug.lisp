@@ -2,7 +2,8 @@
 
 (defun inspect-call (f &rest args)
   "Prints function call site e.g (* 2 4) ==> 8 and forwards it's return values"
-  (let ((ret (apply f args)))
+  (let
+    ((ret (apply f args)))
     (format t "(~S ~{~S~^ ~}) ==> ~S~%" f args ret)
     ret))
 

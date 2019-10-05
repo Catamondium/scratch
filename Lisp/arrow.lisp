@@ -35,13 +35,14 @@
 
 (defun diamond-reducer (insert-fun)
   "Create reducing function by substituting '<>' in chaining"
-  (simple-reducer (lambda (acc next)
-          (case (count-if #'<>p next)
-            (0 (funcall insert-fun acc next))  ; if none, use insert-fun
-            (1 (substitute-if acc #'<>p next)) ; if 1, substitute next into accumulator '<>'
-            (t (let ((r (gensym "R")))         ; if many, subsitute the once-evaluated form in each
-              `(let ((,r ,acc))
-                ,(substitute-if r #'<>p next))))))))
+  (simple-reducer
+    (lambda (acc next)
+      (case (count-if #'<>p next)
+        (0 (funcall insert-fun acc next))  ; if none, use insert-fun
+        (1 (substitute-if acc #'<>p next)) ; if 1, substitute next into accumulator at '<>'
+        (t (let ((r (gensym "R")))         ; if many, subsitute the once-evaluated form in each
+          `(let ((,r ,acc))
+            ,(substitute-if r #'<>p next))))))))
 
 (defarrow ->
   "Chain forms my first param"
@@ -74,10 +75,10 @@
         (+ 2 <>))))
 
 (format t "~S~%"
-(macroexpand-1
-  '(-<>
-      5
-      (+ <> <>)))) ; more complex print, duplicate eval
+  (macroexpand-1
+    '(-<>
+        5
+        (+ <> <>)))) ; more complex print, duplicate eval
 
 
  (format t "5 + 5 = ~D~%" (-<> 5 (+ <> <>)))

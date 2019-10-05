@@ -12,7 +12,8 @@
 ; http://www.gigamonkeys.com/book/macros-defining-your-own.html
 (defun primep (number)
   (when (> number 1)
-    (loop for fac from 2 to (isqrt number)
+    (loop
+      for fac from 2 to (isqrt number)
       never (zerop (mod number fac)))))
 
 (defun next-prime (number)
