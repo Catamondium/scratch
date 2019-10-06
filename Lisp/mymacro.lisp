@@ -62,12 +62,12 @@
 (format t "WHILE x < 20, print it, x++~%")
 (let ((x 0))
   (awhile (< x 20)
-	  (format t "  ~02D ~S~%" x it)
-	  (incf x)))
+    (format t "  ~02D ~S~%" x it)
+    (incf x)))
 
 (funcall (alamda (x)
-	(format t "ALAMDA: R: ~D~%~S~%"
-		(+ 2 x) #'self))
+  (format t "ALAMDA: R: ~D~%~S~%"
+    (+ 2 x) #'self))
     20)
 
 (aif (atom pi)
