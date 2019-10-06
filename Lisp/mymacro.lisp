@@ -71,10 +71,10 @@
     20)
 
 (aif (atom pi)
-    (format t "atomic pi? ~S~%" bol))
+  (format t "atomic pi? ~S~%" bol))
 
 (loop for x from -2 to 2
-    do (format t "<=>(~02D 0) --> ~D~%" x (<=> x 0)))
+  do (format t "<=>(~02D 0) --> ~D~%" x (<=> x 0)))
 
 (format t #"<=>("a" "b") --> ~D~%"# (<=> "a" "b"))
 (format t #"<=>("b" "b") --> ~D~%"# (<=> "b" "b"))
