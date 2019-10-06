@@ -1,4 +1,5 @@
 (defun otherwise-clause-p (sym)
+  "Test for OTHERWISE / T clause"
   (and
     (symbolp sym)
     (or
@@ -6,7 +7,8 @@
       (string= sym "T"))))
 
 (defmacro mycase (val &rest stuff)
-  (let*
+  "Reimplementation of CASE macro"
+  (let* ; * version lets sequentially
     ;; Ease implementation w/ named parts
     ((elem (pop stuff))
      (oval (car `,elem))
@@ -18,8 +20,8 @@
         ,@oprog
         (mycase `,,val ,@stuff)))))
 
-(loop for n from 0 upto 4
-  (format t "~D~&"
+(loop for n from 0 upto 4 do
+  (format t "Builtin: ~D~&"
     (car 
       (case n
         (0 '("Zero"))
@@ -28,7 +30,7 @@
         (t '("Other")))))
 
 
-  (format t "~D~&"
+  (format t "Custom: ~1T~D~&"
     (car
         (mycase n
           (0 '("Zero"))

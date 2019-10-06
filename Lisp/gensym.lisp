@@ -5,7 +5,7 @@
 
 (defmacro test ()
   (with_gensyms (a b c)
-    `(let* 
+    `(let ; none * version lets in parallel
       ((,a 1)
        (,b 2)
        (,c 3))
