@@ -27,4 +27,4 @@ Places have the forms:
 
 (setq *lst* '('a 'b 'c 'd))
 (setf (kth *lst* 0) 20)
-(format t "*lst*: ~D~&k = 0: ~D" *lst* (kth *lst* 0))
+(format t "~D: ~D~&k = 0: ~D" '*lst* *lst* (kth *lst* 0))
