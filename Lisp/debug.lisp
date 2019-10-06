@@ -8,8 +8,7 @@
     ret))
 
 (defun genwrap_gendoc (wrapper wrapee)
-  (concatenate
-    'string
+  (concatenate 'string
     (format nil "~A wrapped in ~A~&" wrapee wrapper)
     (format nil "~A: ~A~&" wrapee (documentation wrapee 'function))
     (format nil "~A: ~A" wrapper (documentation wrapper 'function))))
