@@ -12,7 +12,7 @@
     ;; Ease implementation w/ named parts
     ((elem (pop stuff))
      (oval (car `,elem))
-     (oprog (cdr `,elem)))
+     (oprog (subseq `,elem 1)))
     ;; if final, run it, else generate recursive check
     (if (otherwise-clause-p `,oval)
       `(progn ,@oprog)
