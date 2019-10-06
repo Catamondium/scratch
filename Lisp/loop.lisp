@@ -8,10 +8,10 @@
 (let
 	((fmt
 		(concatenate 'string
-					"~S:~%~{ (~{~"
-					(write-to-string (+ 1 (floor (log (* i i) 10))))
-					",'0D~^ ~})~&~}~&")))
+			"~S:~%~{ (~{~"
+			(write-to-string (+ 1 (floor (log (* i i) 10))))
+			",'0D~^ ~})~&~}~&")))
 
-	(format t fmt
-		`(make-multiples ,i ,(loop for x from 0 upto i collect x))
-		(make-multiples i  (loop for x from 0 upto i collect x))))
+		(format t fmt
+			`(make-multiples ,i ,(loop for x from 0 upto i collect x))
+			(make-multiples i  (loop for x from 0 upto i collect x))))
