@@ -66,20 +66,19 @@
   insert-last)
 
 ;;; main
-(format t "~S~%"
+(pprint
   (macroexpand-1
     '(-<>
       5         ;      3  2     arg
       (+ 10 <>) ; (+ 2 (* (+ 10 5) 3))
       (* 3)     ; append to 1st param
       (+ 2 <>))))
-
-(format t "~S~%"
+(pprint
   (macroexpand-1
     '(-<>
       5
       (+ <> <>)))) ; more complex print, duplicate eval
-
+(fresh-line)
 
  (format t "5 + 5 = ~D~%" (-<> 5 (+ <> <>)))
 

@@ -13,5 +13,6 @@
         
       (format nil "(~D ~D ~D)" ,a ,b ,c))))
 
-(format t "gsyms: ~D~&" (macroexpand-1 '(test)))
+(pprint (macroexpand-1 '(test)))
+(fresh-line)
 (format t "evals: ~D~&" (test))

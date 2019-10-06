@@ -27,7 +27,8 @@
         ,(genwrap_gendoc wrapper wrapee)
         (apply ',wrapper ',wrapee args))))
 
-(format t "~S~%" (macroexpand-1 '(genwrap inspect-call +)))
+(pprint (macroexpand-1 '(genwrap inspect-call +)))
+(fresh-line)
 (genwrap inspect-call +) ; inspect-call-+ returned to global scope
 (format t "Forwarded return: (~{~S~^ ~}) ==> ~D~%~%" '(inspect-call-+ 2 2 2) (inspect-call-+ 2 2 2))
 
