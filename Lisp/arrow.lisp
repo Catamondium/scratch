@@ -19,8 +19,8 @@
   "Create reducing function from function inserter"
   (lambda (acc next)                   ; return reducing functor
     (if (listp next)                   ; if list
-        (funcall insert-fun acc next)  ; call the inserter
-        (list next acc))))             ; else make new list
+      (funcall insert-fun acc next)  ; call the inserter
+      (list next acc))))             ; else make new list
 
 (defun insert-first (arg surround)
   "Prepend ARG to function call SURROUND"
@@ -69,16 +69,16 @@
 (format t "~S~%"
   (macroexpand-1
     '(-<>
-        5         ;      3  2     arg
-        (+ 10 <>) ; (+ 2 (* (+ 10 5) 3))
-        (* 3)     ; append to 1st param
-        (+ 2 <>))))
+      5         ;      3  2     arg
+      (+ 10 <>) ; (+ 2 (* (+ 10 5) 3))
+      (* 3)     ; append to 1st param
+      (+ 2 <>))))
 
 (format t "~S~%"
   (macroexpand-1
     '(-<>
-        5
-        (+ <> <>)))) ; more complex print, duplicate eval
+      5
+      (+ <> <>)))) ; more complex print, duplicate eval
 
 
  (format t "5 + 5 = ~D~%" (-<> 5 (+ <> <>)))

@@ -25,8 +25,8 @@
               (symbol-name :-)
               (write-to-string wrapee)))))
       `(defun ,observed-func (&rest args)
-          ,(genwrap_gendoc wrapper wrapee)
-          (apply ',wrapper ',wrapee args))))
+        ,(genwrap_gendoc wrapper wrapee)
+        (apply ',wrapper ',wrapee args))))
 
 (format t "~S~%" (macroexpand-1 '(genwrap inspect-call +)))
 (genwrap inspect-call +) ; inspect-call-+ returned to global scope

@@ -16,7 +16,7 @@
     ;; if final, run it, else generate recursive check
     (if (otherwise-clause-p `,oval)
       `(progn ,@oprog)
-      `(if (= ,val ,oval)
+      `(if (eql ,val ,oval)
         ,@oprog
         (mycase `,,val ,@stuff)))))
 
@@ -32,8 +32,8 @@
 
   (format t "Custom: ~1T~D~&"
     (car
-        (mycase n
-          (0 '("Zero"))
-          (1 '("One"))
-          (2 '("Two"))
-          (t '("Other"))))))
+      (mycase n
+        (0 '("Zero"))
+        (1 '("One"))
+        (2 '("Two"))
+        (t '("Other"))))))

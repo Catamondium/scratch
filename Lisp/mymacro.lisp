@@ -1,8 +1,8 @@
 (defmacro ^ (x y &body body)
   "Print (expt x y) and execute body form"
   `(progn
-     (format t "~D ~%" (expt ,x ,y))
-     ,@body))
+    (format t "~D ~%" (expt ,x ,y))
+    ,@body))
 
 (defun escaping-reader (stream sub-char numarg)
   "Return escaped version of stream until <doublequote-sharp> is encountered"
@@ -55,7 +55,7 @@
 (defmacro aif (test Tclause &optional Fclause)
   "Anaphoric if, binding truth to bol. :then to process return bol"
   `(let ((bol ,test))
-     (if bol ,Tclause ,Fclause)))
+    (if bol ,Tclause ,Fclause)))
 
 (^ 10 2 (format t "~D ~%" 20))
 
@@ -71,10 +71,10 @@
     20)
 
 (aif (atom pi)
-     (format t "atomic pi? ~S~%" bol))
+    (format t "atomic pi? ~S~%" bol))
 
 (loop for x from -2 to 2
-      do (format t "<=>(~02D 0) --> ~D~%" x (<=> x 0)))
+    do (format t "<=>(~02D 0) --> ~D~%" x (<=> x 0)))
 
 (format t #"<=>("a" "b") --> ~D~%"# (<=> "a" "b"))
 (format t #"<=>("b" "b") --> ~D~%"# (<=> "b" "b"))
