@@ -1,4 +1,4 @@
-(defmacro mycase (val &rest stuff)
+(defmacro mycase (val (oval &rest oprog) &rest next)
   "Reimplementation of CASE macro"
   (flet
     ((otherwise-clause-p (sym)
@@ -8,13 +8,11 @@
         (or
           (string= sym "T")
           (string= sym "OTHERWISE")))))
-    ;; Ease implementation w/ named parts
-    (destructuring-bind ((oval &rest oprog) &rest next) stuff
-      (if (otherwise-clause-p `,oval)
-        `(progn ,@oprog)
-        `(if (eql ,val ,oval)
-          ,@oprog
-          (mycase `,,val ,@next))))))
+    (if (otherwise-clause-p `,oval)
+      `(progn ,@oprog)
+      `(if (eql ,val ,oval)
+        ,@oprog
+        (mycase `,,val ,@next)))))
 
 (loop for n from 0 upto 4 do
   (format t "Builtin: ~D~&"
