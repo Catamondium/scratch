@@ -8,17 +8,13 @@
         (or
           (string= sym "T")
           (string= sym "OTHERWISE")))))
-    (let* ; * version lets sequentially
-      ;; Ease implementation w/ named parts
-      ((elem (pop stuff))
-      (oval (car `,elem))
-      (oprog (subseq `,elem 1)))
-      ;; if final, run it, else generate recursive check
+    ;; Ease implementation w/ named parts
+    (destructuring-bind ((oval &rest oprog) &rest next) stuff
       (if (otherwise-clause-p `,oval)
         `(progn ,@oprog)
         `(if (eql ,val ,oval)
           ,@oprog
-          (mycase `,,val ,@stuff))))))
+          (mycase `,,val ,@next))))))
 
 (loop for n from 0 upto 4 do
   (format t "Builtin: ~D~&"
