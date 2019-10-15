@@ -11,6 +11,7 @@ TODO:
 
   elide 'True' exprs from and/ors
 */
+
 sealed class Expr {
     def or(exp: Expr): Expr =
     exp match {
@@ -34,11 +35,37 @@ sealed class Expr {
     // Supplemental operators
     def +(exp: Expr) = or(exp)
     def |(exp: Expr) = or(exp)
+    def ||(exp: Expr) = or(exp)
     def *(exp: Expr) = and(exp)
     def &(exp: Expr) = and(exp)
+    def &&(exp: Expr) = and(exp)
     def unary_- = unary_!
     def unary_~ = unary_!
     def unary_+ = this
+}
+
+
+// Boolean internment
+
+object SymInterner {
+  implicit def Bool2Sym(b: Boolean): Expr =
+  if (b) {
+    return new True
+  } else {
+    return new False
+  }
+}
+import SymInterner._
+
+
+class True extends Expr {
+  def apply(): Boolean = true
+  override def toString: String = "1"
+}
+
+class False extends Expr {
+  def apply(): Boolean = false
+  override def toString: String = "0"
 }
 
 case class Not(val exp: Expr) extends Expr {
@@ -74,4 +101,5 @@ case class And(var subs: Set[Expr] = Set()) extends CompExpr {
 
 val x = Sym('X')
 val y = Sym('Y')
-println(x or x or (x and y)) // -> (X | (X & Y))
+println(x | x or (x and y)) // -> !X | !Y
+println(x | true)
