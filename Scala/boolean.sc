@@ -11,19 +11,17 @@ TODO:
 
   elide 'True' exprs from and/ors
 */
-
-
 sealed class Expr {
     def or(exp: Expr): Expr =
     exp match {
-        case Or(subs) => return Or(subs :+ this)
-        case _ => return Or(List(this, exp))
+        case Or(subs) => return Or(Set(this, exp))
+        case _ => return Or(Set(this, exp))
     }
 
     def and(exp: Expr): Expr =
     exp match {
-        case And(subs) => return And(subs :+ this)
-        case _ => return And(List(this, exp))
+        case And(subs) => return And(subs + this)
+        case _ => return And(Set(this, exp))
     }
 
     def unary_!(): Expr = this match {
@@ -52,15 +50,28 @@ case class Sym(val label: Char) extends Expr {
 }
 
 class CompExpr extends Expr
+// Composites or & and use sets, removing immediate repetitions
 
-case class Or(var subs: List[Expr] = List()) extends CompExpr {
+case class Or(var subs: Set[Expr] = Set()) extends CompExpr {
   override def toString: String = subs.mkString("(", " | ", ")")
+  
+  override def or(exp: Expr): Expr =
+  exp match {
+    case Or(subp) => return Or(subp ++ subs)
+    case _ => return Or(subs + exp)
+  }
 }
 
-case class And(var subs: List[Expr] = List()) extends CompExpr {
+case class And(var subs: Set[Expr] = Set()) extends CompExpr {
   override def toString: String = subs.mkString("(", " & ", ")")
+  
+  override def and(exp: Expr): Expr =
+  exp match {
+    case And(subp) => return And(subp ++ subs)
+    case _ => return And(subs + exp)
+  }
 }
 
 val x = Sym('X')
 val y = Sym('Y')
-println(x or (x and y)) // -> !X | !Y
+println(x or x or (x and y)) // -> (X | (X & Y))
