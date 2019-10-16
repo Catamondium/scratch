@@ -12,6 +12,26 @@ TODO:
   elide 'True' exprs from and/ors
 */
 
+// Boolean internment
+
+object SymInterner {
+  implicit def Bool2Sym(b: Boolean): Expr = SymBool(b)
+}
+
+case class SymBool(val bol: Boolean) extends Expr {
+  override def toString = f"$bol"
+}
+
+import SymInterner._
+
+case class Not(val exp: Expr) extends Expr {
+  override def toString: String = s"!$exp"
+}
+
+case class Sym(val label: Char) extends Expr {
+    override def toString() = s"$label"
+}
+
 sealed class Expr {
     def or(exp: Expr): Expr =
     exp match {
@@ -44,38 +64,6 @@ sealed class Expr {
     def unary_+ = this
 }
 
-
-// Boolean internment
-
-object SymInterner {
-  implicit def Bool2Sym(b: Boolean): Expr =
-  if (b) {
-    return new True
-  } else {
-    return new False
-  }
-}
-import SymInterner._
-
-
-class True extends Expr {
-  def apply(): Boolean = true
-  override def toString: String = "1"
-}
-
-class False extends Expr {
-  def apply(): Boolean = false
-  override def toString: String = "0"
-}
-
-case class Not(val exp: Expr) extends Expr {
-  override def toString: String = s"!$exp"
-}
-
-case class Sym(val label: Char) extends Expr {
-    override def toString() = s"$label"
-}
-
 class CompExpr extends Expr
 // Composites or & and use sets, removing immediate repetitions
 
@@ -101,5 +89,5 @@ case class And(var subs: Set[Expr] = Set()) extends CompExpr {
 
 val x = Sym('X')
 val y = Sym('Y')
-println(x | x or (x and y)) // -> !X | !Y
-println(x | true)
+println(!(x & y)) // -> !X | !Y
+println(x || true)
