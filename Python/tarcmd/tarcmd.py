@@ -7,6 +7,17 @@ import sys
 """
 TODO
 
+tokenize by spaces, escaped by '\'
+
+globbing support:
+	tar context
+		fnmatch
+	'real' context (during extractions, appends etc.)
+		glob.glob
+'real' effects:
+	cd
+	shell runs
+
 Path-based trie
 cd & cd environ
 multiple files, append?
