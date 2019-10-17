@@ -7,6 +7,7 @@ import sys
 """
 TODO
 
+lazy TemporaryDirectory
 tokenize by spaces, escaped by '\'
 
 globbing support:
