@@ -42,29 +42,36 @@ class Tarcmd(Cmd):
     tartree = Trie()
     environ = dict()
 
+    def refresh_prompt(self):
+        self.prompt = f"{self.environ['pwd']} {self.postfix}"
+
+    @staticmethod
+    def resolve(path='.'):
+        p = Path(path)
+        if not path.strip():
+            return None
+        elif p == '.':
+            raise NotImplementedError
+        elif p.is_absolute():
+            return p.parts[1:]
+        else:
+            return p.parts
+
     def do_mount(self, target):
         """Mount a new tar archive"""
         self.environ['file'] = target
         self.environ['pwd'] = '/'
+        self.refresh_prompt()
         with tf.open(target) as f:
             for info in f:
                 self.tartree[info.name.split('/')] = info
 
     def do_ls(self, path, verbose=False):
         """List members"""
-
         p = Path(path)
         n = None
         try:
-            # TODO, pull into method and fix this shit!
-            if not path.strip():
-                n = self.tartree.getNode(None)
-            elif p == '.':
-                raise NotImplementedError
-            elif p.is_absolute():
-                n = self.tartree.getNode(str(p)[1:].split('/'))
-            else:
-                n = self.tartree.getNode(str(p).split('/'))
+            n = self.tartree.getNode(self.resolve(path))
 
             results = [n, *n.children.values()]
             results = [(i.value.name, i.value) for i in results if i.isLeaf]
@@ -82,7 +89,7 @@ class Tarcmd(Cmd):
 
     def do_cd(self, path):
         # TODO
-        pass
+        self.refresh_prompt()
 
     def do_debug(self, *args):
         """Display underlying trie"""
