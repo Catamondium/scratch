@@ -40,7 +40,7 @@ class Trie:
                 return
             raise KeyError
         
-        self.children[strings[0]].get(strings[1:])
+        self.children[strings[0]].remove(strings[1:])
 
     def keys(self, _prec=[]):
         """
@@ -111,11 +111,21 @@ class Trie:
     def __iter__(self):
         return self.keys()
 
-    def __setitem__(self, key: List[str], value):
-        self.insert(key, value)
+
+    def __bool__(self):
+        if self.isLeaf:
+            return True
+        else:
+            return any(map(bool, self.children))
 
     def __getitem__(self, key: List[str]):
         return self.get(key)
+
+    def __setitem__(self, key: List[str], value):
+        self.insert(key, value)
+    
+    def __delitem__(self, key: List[str]):
+        self.remove(key)
 
     def __contains__(self, query: List[str]):
         if not query:
