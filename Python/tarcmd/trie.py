@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from typing import List
 
+
 class Trie:
     def __init__(self, ch=[]):
         if not ch:
@@ -29,7 +30,7 @@ class Trie:
             if self.isLeaf:
                 return self.value
             raise KeyError
-        
+
         return self.children[strings[0]].get(strings[1:])
 
     def remove(self, strings: List[str]):
@@ -39,7 +40,7 @@ class Trie:
                 self.value = None
                 return
             raise KeyError
-        
+
         self.children[strings[0]].remove(strings[1:])
 
     def keys(self, _prec=[]):
@@ -111,7 +112,6 @@ class Trie:
     def __iter__(self):
         return self.keys()
 
-
     def __bool__(self):
         if self.isLeaf:
             return True
@@ -123,7 +123,7 @@ class Trie:
 
     def __setitem__(self, key: List[str], value):
         self.insert(key, value)
-    
+
     def __delitem__(self, key: List[str]):
         self.remove(key)
 
@@ -153,8 +153,8 @@ if __name__ == "__main__":
         Path("B/f"): 4
     }
 
-    for p,v in paths.items():
-        t[list(p.parts)]= v
+    for p, v in paths.items():
+        t[list(p.parts)] = v
 
     print(f"{first.parts} in t => {first.parts in t}")
     t.print()
