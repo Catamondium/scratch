@@ -24,19 +24,23 @@ class Trie:
             chld.insert(strings[1:], value)
             self.children[strings[0]] = chld
 
-    def __contains__(self, query: List[str]):
-        if not query:
+    def get(self, strings: List[str]):
+        if not strings:
             if self.isLeaf:
-                return True
-            else:
-                return False
+                return self.value
+            raise KeyError
+        
+        return self.children[strings[0]].get(strings[1:])
 
-        print(query)
-        try:
-            return query[1:] in self.children[query[0]]
-        except KeyError:
-            return False
-        return False
+    def remove(self, strings: List[str]):
+        if not strings:
+            if self.isLeaf:
+                self.isLeaf = False
+                self.value = None
+                return
+            raise KeyError
+        
+        self.children[strings[0]].get(strings[1:])
 
     def keys(self, _prec=[]):
         """
@@ -48,9 +52,6 @@ class Trie:
 
         for chld in self.children.values():
             yield from chld.keys([*_prec, self.ch])
-
-    def __iter__(self):
-        return self.keys()
 
     def values(self, _prec=[]):
         """
@@ -107,6 +108,29 @@ class Trie:
         for chld in self.children.values():
             chld.print(indent)
 
+    def __iter__(self):
+        return self.keys()
+
+    def __setitem__(self, key: List[str], value):
+        self.insert(key, value)
+
+    def __getitem__(self, key: List[str]):
+        return self.get(key)
+
+    def __contains__(self, query: List[str]):
+        if not query:
+            if self.isLeaf:
+                return True
+            else:
+                return False
+
+        print(query)
+        try:
+            return query[1:] in self.children[query[0]]
+        except KeyError:
+            return False
+        return False
+
 
 if __name__ == "__main__":
     t = Trie()
@@ -120,7 +144,7 @@ if __name__ == "__main__":
     }
 
     for p,v in paths.items():
-        t.insert(list(p.parts), value=v)
-    
+        t[list(p.parts)]= v
+
     print(f"{first.parts} in t => {first.parts in t}")
     t.print()
