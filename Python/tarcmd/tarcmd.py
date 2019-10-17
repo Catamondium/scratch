@@ -39,22 +39,52 @@ class Tarcmd(Cmd):
     intro = "Tar explorer shell"
     postfix = "T> "
     prompt = postfix
-    file = None
     tartree = Trie()
+    environ = dict()
 
     def do_mount(self, target):
         """Mount a new tar archive"""
-        self.file = target
+        self.environ['file'] = target
+        self.environ['pwd'] = '/'
         with tf.open(target) as f:
             for info in f:
                 self.tartree[info.name.split('/')] = info
 
-    def do_ls(self, verbose=False):
+    def do_ls(self, path, verbose=False):
         """List members"""
-        with tf.open(self.file) as f:
-            f.list(verbose=verbose)
 
-    def do_debug(self, line=''):
+        p = Path(path)
+        n = None
+        try:
+            # TODO, pull into method and fix this shit!
+            if not path.strip():
+                n = self.tartree.getNode(None)
+            elif p == '.':
+                raise NotImplementedError
+            elif p.is_absolute():
+                n = self.tartree.getNode(str(p)[1:].split('/'))
+            else:
+                n = self.tartree.getNode(str(p).split('/'))
+
+            results = [n, *n.children.values()]
+            results = [(i.value.name, i.value) for i in results if i.isLeaf]
+
+            for r, _ in sorted(results, key=lambda t: t[0]):
+                relative = Path(r).relative_to(p)
+                print(str(relative))
+        except:
+            print(f"No such path: {n or str(path)}")
+
+    def do_env(self, *args):
+        """List environment variables"""
+        for k, v in self.environ.items():
+            print(f"{k} = {v}")
+
+    def do_cd(self, path):
+        # TODO
+        pass
+
+    def do_debug(self, *args):
         """Display underlying trie"""
         self.tartree.print()
 

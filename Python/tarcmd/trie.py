@@ -33,6 +33,12 @@ class Trie:
 
         return self.children[strings[0]].get(strings[1:])
 
+    def getNode(self, strings: List[str]):
+        if not strings:
+            return self
+        else:
+            return self.children[strings[0]].getNode(strings[1:])
+
     def remove(self, strings: List[str]):
         if not strings:
             if self.isLeaf:
