@@ -3,6 +3,7 @@ import tarfile as tf
 from cmd import Cmd
 from pathlib import Path
 from trie import Trie
+from copy import deepcopy
 import sys
 
 """
@@ -39,23 +40,46 @@ class Tarcmd(Cmd):
     intro = "Tar explorer shell"
     postfix = "T> "
     prompt = postfix
-    tartree = Trie()
+    tree = Trie()
+
     environ = dict()
+    pwd = []
 
     def refresh_prompt(self):
         self.prompt = f"{self.environ['pwd']} {self.postfix}"
 
-    @staticmethod
-    def resolve(path='.'):
-        p = Path(path)
-        if not path.strip():
+    def resolve(self, path='.'):
+        if not path:
             return None
-        elif p == '.':
-            raise NotImplementedError
-        elif p.is_absolute():
-            return p.parts[1:]
-        else:
-            return p.parts
+        #elif path == '.':
+        #    return deepcopy(self.pwd)
+
+        p = Path(path)
+        parts = [*p.parts]
+        resolved = []
+
+        try:
+            origin = parts[0]
+            if origin == '.':
+                resolved = deepcopy(self.pwd)
+                parts = parts[1:]
+            elif origin in ('~', '/'):
+                parts = parts[1:]
+        except IndexError:
+            pass
+
+        for part in parts:
+            if part in ('.', '~'):
+                # Ignore null move
+                continue
+            elif part == '..':
+                # Remove previous, obeying root
+                if resolved:
+                    resolved.pop()
+            else:
+                resolved.append(part)
+
+        return resolved or None
 
     def do_mount(self, target):
         """Mount a new tar archive"""
@@ -64,23 +88,25 @@ class Tarcmd(Cmd):
         self.refresh_prompt()
         with tf.open(target) as f:
             for info in f:
-                self.tartree[info.name.split('/')] = info
+                self.tree[info.name.split('/')] = info
 
     def do_ls(self, path, verbose=False):
         """List members"""
-        p = Path(path)
+        solved = self.resolve(path)
+        p = Path('/'.join(solved or []))
         n = None
-        try:
-            n = self.tartree.getNode(self.resolve(path))
+        #try:
+        print(f"Resolved: {solved}")
+        n = self.tree.getNode(solved)
 
-            results = [n, *n.children.values()]
-            results = [(i.value.name, i.value) for i in results if i.isLeaf]
+        results = [n, *n.children.values()]
+        results = [(i.value.name, i.value) for i in results if i.isLeaf]
 
-            for r, _ in sorted(results, key=lambda t: t[0]):
-                relative = Path(r).relative_to(p)
-                print(str(relative))
-        except:
-            print(f"No such path: {n or str(path)}")
+        for r, _ in sorted(results, key=lambda t: t[0]):
+            relative = Path(r).relative_to(p)
+            print(str(relative))
+        #except:
+        #    print(f"No such path: {n or str(path)}")
 
     def do_env(self, *args):
         """List environment variables"""
@@ -93,7 +119,7 @@ class Tarcmd(Cmd):
 
     def do_debug(self, *args):
         """Display underlying trie"""
-        self.tartree.print()
+        self.tree.print()
 
 
 if __name__ == "__main__":
