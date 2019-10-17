@@ -6,27 +6,30 @@ from typing import List, Optional as Maybe
 from trie import Trie
 from copy import deepcopy
 import sys
+import os
 
 """
 TODO
 
-lazy TemporaryDirectory
-tokenize by spaces, escaped by '\'
+PARSING
+    class decorator?
+    tokenize by spaces, escaped by '\'
 
-globbing support:
-	tar context
-		fnmatch
-	'real' context (during extractions, appends etc.)
-		glob.glob
-'real' effects:
-	cd
-	shell runs
+    marking decorators to distinguish?
+    globbing support:
+        tar context
+            fnmatch
+        'mixed' context (during extractions, appends etc.)
+            decorator provides arity / 'types'?
+            glob.glob
+    'real' effects: delegate parsing to shell
+        cd
+        shell runs
 
-cd & cd environ
 multiple files, append?
-columnize ls (reparse stringio redirect?)
 perms: chown, chmod, chgrp(?)
 editing: edit, mv, rm, add
+    lazy TemporaryDirectory?
     might get complicated tracking changes
         heterogenous trie values?
 
@@ -121,11 +124,11 @@ class Tarcmd(Cmd):
     def do_debug(self, *args):
         print(f"pwd: {self.pwd}")
         self.tree.print()
-    
+
     def do_exit(self, *args):
         """Exit tarcmd"""
         sys.exit()
-    
+
     def do_quit(self, *args):
         """Exit tarcmd"""
         sys.exit()
