@@ -1,5 +1,61 @@
 #!/usr/bin/env python3
-from typing import List
+from typing import List, Optional as Maybe
+
+
+class TPath:
+    """Trie path, submit to Trie w/ #parts"""
+
+    def __init__(self, string: str):
+        self._unsolved = string
+        self.solved = None
+        self._pending = []
+
+    def __div__(self, npart):
+        if self.solved:
+            self.solved.append(npart)
+        else:
+            self._pending.append(npart)
+
+    def __repr__(self):
+        if self.solved:
+            return f"TPath({self.solved})"
+        else:
+            return f"TPath(\'{self._unsolved}\')"
+
+    def parts(self, pwd) -> Maybe[List[str]]:
+        if self.solved:
+            return self.solved
+
+        if not self._unsolved or self._unsolved == '.':
+            return pwd
+
+        p = Path(self._unsolved)
+        parts = [*p.parts]
+        resolved = []
+
+        try:
+            origin = parts[0]
+            if origin in ('~', '/'):
+                parts = parts[1:]
+            else:
+                resolved = pwd
+        except IndexError:
+            pass
+
+        for part in parts:
+            if part in ('.', '~'):
+                # Ignore null move
+                continue
+            elif part == '..' and resolved:
+                # Remove previous, obeying root
+                resolved.pop()
+            else:
+                resolved.append(part)
+        if self._pending:
+            resolved += self._pending
+            self._pending = None
+        self.solved = resolved
+        return self.solved
 
 
 class Trie:

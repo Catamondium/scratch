@@ -2,67 +2,55 @@
 import tarfile as tf
 from cmd import Cmd
 from pathlib import Path
-from typing import Tuple, List, Optional as Maybe
-from trie import Trie
+from typing import Tuple, List
+from trie import Trie, TPath
 from copy import deepcopy
+from functools import wraps
+from inspect import signature, Parameter
+from shlex import split as shsplit
+from itertools import islice
 import sys
 import os
 
 
-class TPath:
-    """Trie path, submit to Trie w/ #parts"""
+def perr(msg: str = "An error occured"):
+    """
+    Prints string when an exception occurs, passes exception
+    """
+    def outer(f):
+        @wraps(f)
+        def deco(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except:
+                print(msg)
+        return deco
+    return outer
 
-    def __init__(self, string: str):
-        self._unsolved = string
-        self.solved = None
-        self._pending = []
 
-    def __div__(self, npart):
-        if self.solved:
-            self.solved.append(npart)
-        else:
-            self._pending.append(npart)
-
-    def __repr__(self):
-        if self.solved:
-            return f"TPath({self.solved})"
-        else:
-            return f"TPath(\'{self._unsolved}\')"
-
-    def parts(self, pwd) -> Maybe[List[str]]:
-        if self.solved:
-            return self.solved
-
-        if not self._unsolved or self._unsolved == '.':
-            return pwd
-
-        p = Path(self._unsolved)
-        parts = [*p.parts]
-        resolved = []
-
-        try:
-            origin = parts[0]
-            if origin in ('~', '/'):
-                parts = parts[1:]
-            else:
-                resolved = pwd
-        except IndexError:
-            pass
-
-        for part in parts:
-            if part in ('.', '~'):
-                # Ignore null move
+def lexed(f):
+    """
+    Cmd do_* lexing decorator
+    ignores surplus arguments post-tokenization
+    Currently only tokenizes # FIXME
+    """
+    sig = signature(f)
+    @wraps(f)
+    def deco(obj, line):
+        toks = shsplit(line)[::-1]
+        args = ()
+        print(sig.parameters)
+        for name, param in sig.parameters.items():
+            if name == 'self':
+                # Exclude obj, handled eariler
                 continue
-            elif part == '..' and resolved:
-                # Remove previous, obeying root
-                resolved.pop()
-            else:
-                resolved.append(part)
-        if self._pending:
-            resolved += self._pending
-            self._pending = None
-        self.solved = resolved
-        return self.solved
+
+            if param.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD):
+                args += (toks.pop(),)
+            elif param.kind == Parameter.VAR_POSITIONAL:
+                args += tuple(toks[::-1])
+        return f(obj, *args)
+    return deco
 
 
 class Tarcmd(Cmd):
@@ -128,11 +116,12 @@ class Tarcmd(Cmd):
         print(f"pwd: {self.pwd}")
         self.tree.print()
 
-    # @lexed # TODO
-    # def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
-    #    print(f"TAR: {tpath}")
-    #    print(f"SYS: {spath}")
-    #    print(f"*rs: {rest}")
+    @perr("Insufficient arguments")
+    @lexed
+    def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
+        print(f"TAR: {tpath} : {type(tpath)}")
+        print(f"SYS: {spath} : {type(spath)}")
+        print(f"*rs: {rest} : {type(rest)}")
 
 
 if __name__ == "__main__":
