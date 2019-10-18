@@ -2,7 +2,7 @@
 import tarfile as tf
 from cmd import Cmd
 from pathlib import Path
-from typing import List, Optional as Maybe
+from typing import Tuple, List, Optional as Maybe
 from trie import Trie
 from copy import deepcopy
 import sys
@@ -13,7 +13,6 @@ TODO
 
 PARSING
     class decorator?
-    tokenize by spaces, escaped by '\'
 
     marking decorators to distinguish?
     globbing support:
@@ -40,24 +39,34 @@ editing: edit, mv, rm, add
 """
 
 
-class Tarcmd(Cmd):
-    intro = "Tar explorer shell"
-    postfix = "(Tar) > "
-    prompt = postfix
-    tree = Trie()
+class TPath:
+    """Trie path, submit to Trie w/ #parts"""
 
-    environ = dict()
-    pwd = []
+    def __init__(self, string: str):
+        self._unsolved = string
+        self.solved = None
+        self._pending = []
 
-    def refresh_prompt(self):
-        self.prompt = f"{self.environ['pwd']} {self.postfix}"
+    def __div__(self, npart):
+        if self.solved:
+            self.solved.append(npart)
+        else:
+            self._pending.append(npart)
 
-    def resolve(self, path: str = '.') -> Maybe[List[str]]:
-        """Resolve TAR paths"""
-        if not path or path == '.':
-            return deepcopy(self.pwd)
+    def __repr__(self):
+        if self.solved:
+            return f"TPath({self.solved})"
+        else:
+            return f"TPath(\'{self._unsolved}\')"
 
-        p = Path(path)
+    def parts(self, pwd) -> Maybe[List[str]]:
+        if self.solved:
+            return self.solved
+
+        if not self._unsolved or self._unsolved == '.':
+            return pwd
+
+        p = Path(self._unsolved)
         parts = [*p.parts]
         resolved = []
 
@@ -66,7 +75,7 @@ class Tarcmd(Cmd):
             if origin in ('~', '/'):
                 parts = parts[1:]
             else:
-                resolved = deepcopy(self.pwd)
+                resolved = pwd
         except IndexError:
             pass
 
@@ -79,8 +88,24 @@ class Tarcmd(Cmd):
                 resolved.pop()
             else:
                 resolved.append(part)
+        if self._pending:
+            resolved += self._pending
+            self._pending = None
+        self.solved = resolved
+        return self.solved
 
-        return resolved
+
+class Tarcmd(Cmd):
+    intro = "Tar explorer shell"
+    postfix = "(Tar) > "
+    prompt = postfix
+    tree = Trie()
+
+    environ = dict()
+    pwd = []
+
+    def refresh_prompt(self):
+        self.prompt = f"{self.environ['pwd']} {self.postfix}"
 
     def do_mount(self, target: Path):
         """Mount a new tar archive"""
@@ -93,7 +118,7 @@ class Tarcmd(Cmd):
 
     def do_ls(self, path: str, verbose=False):
         """List members"""
-        solved = self.resolve(path)
+        solved = TPath(path).parts(deepcopy(self.pwd))
         p = Path('/'.join(solved or []))
         n = None
         try:
@@ -116,14 +141,10 @@ class Tarcmd(Cmd):
 
     def do_cd(self, path: str):
         """Change working directory"""
-        npwd = self.resolve(path)
+        npwd = TPath(path).parts(deepcopy(self.pwd))
         self.pwd = npwd
         self.environ['pwd'] = '/' + '/'.join(npwd)
         self.refresh_prompt()
-
-    def do_debug(self, *args):
-        print(f"pwd: {self.pwd}")
-        self.tree.print()
 
     def do_exit(self, *args):
         """Exit tarcmd"""
@@ -132,6 +153,16 @@ class Tarcmd(Cmd):
     def do_quit(self, *args):
         """Exit tarcmd"""
         sys.exit()
+
+    def do_debug(self, *args):
+        print(f"pwd: {self.pwd}")
+        self.tree.print()
+
+    # @lexed # TODO
+    # def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
+    #    print(f"TAR: {tpath}")
+    #    print(f"SYS: {spath}")
+    #    print(f"*rs: {rest}")
 
 
 if __name__ == "__main__":
