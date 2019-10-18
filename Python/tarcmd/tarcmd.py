@@ -8,36 +8,6 @@ from copy import deepcopy
 import sys
 import os
 
-"""
-TODO
-
-PARSING
-    class decorator?
-
-    marking decorators to distinguish?
-    globbing support:
-        tar context
-            fnmatch
-        'mixed' context (during extractions, appends etc.)
-            decorator provides arity / 'types'?
-            glob.glob
-    'real' effects: delegate parsing to shell
-        cd
-        shell runs
-
-multiple files, append?
-perms: chown, chmod, chgrp(?)
-editing: edit, mv, rm, add
-    lazy TemporaryDirectory?
-    might get complicated tracking changes
-        heterogenous trie values?
-
-    add:
-        create temporary; either duplicate name or extension preserving
-        load tmp into $EDITOR, overridable?
-        keep tmp until making changes, or commit to BytesIO/TarInfo?
-"""
-
 
 class TPath:
     """Trie path, submit to Trie w/ #parts"""
