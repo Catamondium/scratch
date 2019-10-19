@@ -30,6 +30,9 @@ def perr(msg: str = "An error occured"):
 
 def lexed(f):
     """
+    apropos: allows method do_* = f, to be written as a normal method
+    instead of f(self, line)
+
     Cmd do_* lexing decorator
     tokenizes input line, then constructs according to annotations
     the result is passed onto method 'f'
