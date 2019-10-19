@@ -76,13 +76,18 @@ class Tarcmd(Cmd):
     environ = dict()
     pwd = []
 
-    def do_mount(self, target: Path):
+    def mount(self, target: Path):
         """Mount a new tar archive"""
         self.environ['file'] = target
         self.environ['pwd'] = '/'
         with tf.open(target) as f:
             for info in f:
                 self.tree[info.name.split('/')] = info
+
+    @lexed
+    def do_mount(self, target: Path):
+        """Mount a new tar archive"""
+        self.mount(target)
 
     @lexed
     def do_ls(self, path: TPath = TPath('.')):
@@ -144,7 +149,7 @@ if __name__ == "__main__":
     parser.add_argument("tar", type=Path)
     args = parser.parse_args()
     cmd = Tarcmd()
-    cmd.do_mount(args.tar)
+    cmd.mount(args.tar)
     try:
         cmd.cmdloop()
     except KeyboardInterrupt:
