@@ -113,16 +113,15 @@ class Trie:
         for chld in self.children.values():
             yield from chld.keys([*_prec, self.ch])
 
-    def values(self, _prec=[]):
+    def values(self):
         """
         yields all values.\n
-        _prec is for internal use
         """
         if self.isLeaf:
             yield self.value
 
         for chld in self.children.values():
-            yield from chld.values([*_prec, self.ch])
+            yield from chld.values()
 
     def items(self, _prec=[]):
         """
