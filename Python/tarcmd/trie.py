@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from typing import List, Optional as Maybe
+from pathlib import Path
 
 
 class TPath:

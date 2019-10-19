@@ -45,8 +45,13 @@ def lexed(f):
                 # Exclude obj, handled eariler
                 continue
 
-            if param.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD):
+            if param.kind == Parameter.POSITIONAL_ONLY:
                 args += (param.annotation(toks.pop()),)
+            elif param.kind == Parameter.POSITIONAL_OR_KEYWORD:
+                if toks:
+                    args += (param.annotation(toks.pop()),)
+                else:
+                    args += (param.default,)
             elif param.kind == Parameter.VAR_POSITIONAL:
                 def ctor(x): return x
                 if param.annotation.__name__ == 'Tuple':
@@ -68,7 +73,6 @@ class Tarcmd(Cmd):
     environ = dict()
     pwd = []
 
-    @lexed
     def do_mount(self, target: Path):
         """Mount a new tar archive"""
         self.environ['file'] = target
@@ -78,13 +82,12 @@ class Tarcmd(Cmd):
                 self.tree[info.name.split('/')] = info
 
     @lexed
-    def do_ls(self, path: TPath):
+    def do_ls(self, path: TPath = TPath('.')):
         """List members"""
         solved = path.parts(deepcopy(self.pwd))
         p = Path('/'.join(solved or []))
         n = None
         try:
-            print(f"Resolved: {solved}")
             n = self.tree.getNode(solved)
 
             results = [n, *n.children.values()]
@@ -103,7 +106,7 @@ class Tarcmd(Cmd):
             print(f"{k} = {v}")
 
     @lexed
-    def do_cd(self, path: TPath):
+    def do_cd(self, path: TPath = TPath('.')):
         """Change working directory"""
         npwd = path.parts(deepcopy(self.pwd))
         self.pwd = npwd
