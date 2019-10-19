@@ -194,7 +194,6 @@ class Trie:
 
 if __name__ == "__main__":
     t = Trie()
-    from pathlib import Path
     first = Path("A/B/C")
     paths = {
         first: 1,
@@ -207,6 +206,7 @@ if __name__ == "__main__":
         t[list(p.parts)] = v
 
     print(f"{first.parts} in t => {first.parts in t}")
+    assert first.parts in t
     t.print()
     del t[first.parts]
     assert first.parts not in t
