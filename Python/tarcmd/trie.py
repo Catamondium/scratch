@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from typing import List, Optional as Maybe
 from pathlib import Path
+from collections.abc import Mapping
 
 
 class TPath:
@@ -59,7 +60,7 @@ class TPath:
         return self.solved
 
 
-class Trie:
+class Trie(Mapping):
     def __init__(self, ch=[]):
         if not ch:
             self.root = True
@@ -186,6 +187,12 @@ class Trie:
         else:
             return any(map(bool, self.children))
 
+    def __eq__(self, other):
+        return all(x == y for x, y in zip(self.items(), other.items()))
+
+    def __ne__(self, other):
+        return not self == other
+
     def __getitem__(self, key: List[str]):
         return self.get(key)
 
@@ -194,6 +201,10 @@ class Trie:
 
     def __delitem__(self, key: List[str]):
         self.remove(key)
+
+    def __len__(self):
+        this = 1 if self.isLeaf else 0
+        return this + sum(len(chld) for chld in self.children.values())
 
     def __contains__(self, query: List[str]):
         try:
@@ -205,6 +216,7 @@ class Trie:
 
 if __name__ == "__main__":
     t = Trie()
+    assert isinstance(t, Mapping)
     first = Path("A/B/C")
     paths = {
         first: 1,
@@ -220,6 +232,7 @@ if __name__ == "__main__":
     print(f"{first.parts} in t => {first.parts in t}")
     assert first.parts in t
     t.print()
+    print(len(t))
     print(t)
     del t[first.parts]
     assert first.parts not in t
