@@ -108,7 +108,7 @@ class Trie:
     def remove(self, strings: List[str]):
         """
         Remove a value at strings
-        equiv del Trie()[strings]
+        equiv del obj[strings]
         """
         node = self.getNode(strings)
         if node.isLeaf:
@@ -123,8 +123,8 @@ class Trie:
             yield [self.ch]
 
         for chld in self.children.values():
-            yield from map(lambda x: [self.ch] + x,chld._genkeys())
-    
+            yield from map(lambda x: [self.ch] + x, chld._genkeys())
+
     def keys(self):
         """
         yields all keys
@@ -134,7 +134,7 @@ class Trie:
 
     def values(self):
         """
-        yields all values.\n
+        yields all values
         """
         if self.isLeaf:
             yield self.value
@@ -151,8 +151,7 @@ class Trie:
     # TODO getNode refactor & purify keys/values/items
     def prefixSearch(self, prefix: List[str]):
         """
-        yields all keys with prefix.\n
-        _prec is for internal use
+        yields all keys with prefix
         """
         try:
             node = self.getNode(prefix)
@@ -209,7 +208,7 @@ if __name__ == "__main__":
         Path("A/B/d"): '2',
         Path("A/f"): None,
         Path("B/f"): 4,
-        Path("C/D/e") : None
+        Path("C/D/e"): None
     }
 
     for p, v in paths.items():
