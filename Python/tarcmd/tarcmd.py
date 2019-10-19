@@ -120,6 +120,13 @@ class Tarcmd(Cmd):
         self.pwd = npwd
         self.environ['pwd'] = '/' + '/'.join(npwd)
 
+    @perr("Invalid/Insufficient arguments")
+    @lexed
+    def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
+        print(f"TAR: {tpath} : {type(tpath)}")
+        print(f"SYS: {spath} : {type(spath)}")
+        print(f"*rs: {rest} : {type(rest)}, {type(rest[0])}")
+
     def do_exit(self, *args):
         """Exit tarcmd"""
         sys.exit()
@@ -131,13 +138,6 @@ class Tarcmd(Cmd):
     def do_debug(self, *args):
         print(f"pwd: {self.pwd}")
         self.tree.print()
-
-    @perr("Invalid/Insufficient arguments")
-    @lexed
-    def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
-        print(f"TAR: {tpath} : {type(tpath)}")
-        print(f"SYS: {spath} : {type(spath)}")
-        print(f"*rs: {rest} : {type(rest)}, {type(rest[0])}")
 
     def postcmd(self, *args):
         self.prompt = f"{self.environ['pwd']} {self.postfix}"
