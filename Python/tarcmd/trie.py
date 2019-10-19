@@ -83,12 +83,10 @@ class Trie:
             self.children[strings[0]] = chld
 
     def get(self, strings: List[str]):
-        if not strings:
-            if self.isLeaf:
-                return self.value
-            raise KeyError
-
-        return self.children[strings[0]].get(strings[1:])
+        node = self.getNode(strings)
+        if node.isLeaf:
+            return node.value
+        raise KeyError
 
     def getNode(self, strings: List[str]):
         if not strings:
@@ -97,14 +95,12 @@ class Trie:
             return self.children[strings[0]].getNode(strings[1:])
 
     def remove(self, strings: List[str]):
-        if not strings:
-            if self.isLeaf:
-                self.isLeaf = False
-                self.value = None
-                return
+        node = self.getNode(strings)
+        if node.isLeaf:
+            node.isLeaf = False
+            self.value = None
+        else:
             raise KeyError
-
-        self.children[strings[0]].remove(strings[1:])
 
     def keys(self, _prec=[]):
         """
@@ -152,8 +148,6 @@ class Trie:
                 # prefix not exhausted, traverse further
                 chld = self.children[prefix[0]]
                 yield from chld.prefixSearch(prefix[1:], [*_prec, self.ch])
-            except IndexError:
-                yield None
             except KeyError:
                 yield None
 
@@ -191,18 +185,11 @@ class Trie:
         self.remove(key)
 
     def __contains__(self, query: List[str]):
-        if not query:
-            if self.isLeaf:
-                return True
-            else:
-                return False
-
-        print(query)
         try:
-            return query[1:] in self.children[query[0]]
+            node = self.getNode(query)
+            return node.isLeaf
         except KeyError:
             return False
-        return False
 
 
 if __name__ == "__main__":
