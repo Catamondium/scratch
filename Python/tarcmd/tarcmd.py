@@ -6,7 +6,7 @@ from typing import Tuple, List
 from trie import Trie, TPath
 from copy import deepcopy
 from functools import wraps
-from inspect import signature, Parameter
+from inspect import signature, Parameter, _empty
 from shlex import split as shsplit
 from itertools import islice
 import sys
@@ -31,24 +31,30 @@ def perr(msg: str = "An error occured"):
 def lexed(f):
     """
     Cmd do_* lexing decorator
+    tokenizes input line, then constructs according to annotations
+    the result is passed onto method 'f'
     ignores surplus arguments post-tokenization
-    Currently only tokenizes # FIXME
     """
     sig = signature(f)
     @wraps(f)
     def deco(obj, line):
         toks = shsplit(line)[::-1]
         args = ()
-        print(sig.parameters)
         for name, param in sig.parameters.items():
             if name == 'self':
                 # Exclude obj, handled eariler
                 continue
 
             if param.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD):
-                args += (toks.pop(),)
+                args += (param.annotation(toks.pop()),)
             elif param.kind == Parameter.VAR_POSITIONAL:
-                args += tuple(toks[::-1])
+                def ctor(x): return x
+                if param.annotation.__name__ == 'Tuple':
+                    # Ellipsis varargs
+                    ctor = param.annotation.__args__[0]
+                elif param.annotation != _empty:
+                    ctor = param.annotation
+                args += tuple(map(ctor, toks[::-1]))
         return f(obj, *args)
     return deco
 
@@ -74,7 +80,7 @@ class Tarcmd(Cmd):
             for info in f:
                 self.tree[info.name.split('/')] = info
 
-    def do_ls(self, path: str, verbose=False):
+    def do_ls(self, path: str):
         """List members"""
         solved = TPath(path).parts(deepcopy(self.pwd))
         p = Path('/'.join(solved or []))
@@ -116,12 +122,12 @@ class Tarcmd(Cmd):
         print(f"pwd: {self.pwd}")
         self.tree.print()
 
-    @perr("Insufficient arguments")
+    # @perr("Insufficient arguments")
     @lexed
     def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
         print(f"TAR: {tpath} : {type(tpath)}")
         print(f"SYS: {spath} : {type(spath)}")
-        print(f"*rs: {rest} : {type(rest)}")
+        print(f"*rs: {rest} : {type(rest)}, {type(rest[0])}")
 
 
 if __name__ == "__main__":
