@@ -68,21 +68,19 @@ class Tarcmd(Cmd):
     environ = dict()
     pwd = []
 
-    def refresh_prompt(self):
-        self.prompt = f"{self.environ['pwd']} {self.postfix}"
-
+    @lexed
     def do_mount(self, target: Path):
         """Mount a new tar archive"""
         self.environ['file'] = target
         self.environ['pwd'] = '/'
-        self.refresh_prompt()
         with tf.open(target) as f:
             for info in f:
                 self.tree[info.name.split('/')] = info
 
-    def do_ls(self, path: str):
+    @lexed
+    def do_ls(self, path: TPath):
         """List members"""
-        solved = TPath(path).parts(deepcopy(self.pwd))
+        solved = path.parts(deepcopy(self.pwd))
         p = Path('/'.join(solved or []))
         n = None
         try:
@@ -98,17 +96,18 @@ class Tarcmd(Cmd):
         except:
             print(f"No such path: {n or str(path)}")
 
-    def do_env(self, *args):
+    @lexed
+    def do_env(self):
         """List environment variables"""
         for k, v in self.environ.items():
             print(f"{k} = {v}")
 
-    def do_cd(self, path: str):
+    @lexed
+    def do_cd(self, path: TPath):
         """Change working directory"""
-        npwd = TPath(path).parts(deepcopy(self.pwd))
+        npwd = path.parts(deepcopy(self.pwd))
         self.pwd = npwd
         self.environ['pwd'] = '/' + '/'.join(npwd)
-        self.refresh_prompt()
 
     def do_exit(self, *args):
         """Exit tarcmd"""
@@ -122,12 +121,15 @@ class Tarcmd(Cmd):
         print(f"pwd: {self.pwd}")
         self.tree.print()
 
-    # @perr("Insufficient arguments")
+    @perr("Invalid/Insufficient arguments")
     @lexed
     def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
         print(f"TAR: {tpath} : {type(tpath)}")
         print(f"SYS: {spath} : {type(spath)}")
         print(f"*rs: {rest} : {type(rest)}, {type(rest[0])}")
+
+    def postcmd(self, *args):
+        self.prompt = f"{self.environ['pwd']} {self.postfix}"
 
 
 if __name__ == "__main__":
