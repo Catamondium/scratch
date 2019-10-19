@@ -71,6 +71,10 @@ class Trie:
         self.value = None
 
     def insert(self, strings: List[str], value=None):
+        """
+        Inserts value into trie at strings
+        equivalent to Trie()[strings] = value
+        """
         if not strings:
             self.isLeaf = True
             self.value = value
@@ -83,18 +87,29 @@ class Trie:
             self.children[strings[0]] = chld
 
     def get(self, strings: List[str]):
+        """
+        Fetch value at strings
+        equivalent to Trie()[strings]
+        """
         node = self.getNode(strings)
         if node.isLeaf:
             return node.value
         raise KeyError
 
     def getNode(self, strings: List[str]):
+        """
+        Get a subtree reference at strings
+        """
         if not strings:
             return self
         else:
             return self.children[strings[0]].getNode(strings[1:])
 
     def remove(self, strings: List[str]):
+        """
+        Remove a value at strings
+        equiv del Trie()[strings]
+        """
         node = self.getNode(strings)
         if node.isLeaf:
             node.isLeaf = False
@@ -102,16 +117,20 @@ class Trie:
         else:
             raise KeyError
 
-    def keys(self, _prec=[]):
-        """
-        yields all keys.\n
-        _prec is for internal use
-        """
+    def _genkeys(self):
+        # FIXME I shouldn't be needed
         if self.isLeaf:
-            yield [*_prec[1:], self.ch]
+            yield [self.ch]
 
         for chld in self.children.values():
-            yield from chld.keys([*_prec, self.ch])
+            yield from map(lambda x: [self.ch] + x,chld._genkeys())
+    
+    def keys(self):
+        """
+        yields all keys
+        """
+        # BUG cheated to avoid rekeying
+        yield from map(lambda x: x[1:], self._genkeys())
 
     def values(self):
         """
@@ -123,33 +142,23 @@ class Trie:
         for chld in self.children.values():
             yield from chld.values()
 
-    def items(self, _prec=[]):
+    def items(self):
         """
-        yields all key,value pairs.\n
-        _prec is for internal use
+        yields all key,value pairs
         """
-        if self.isLeaf:
-            yield ([*_prec[1:], self.ch], self.value)
-
-        for chld in self.children.values():
-            yield from chld.items([*_prec, self.ch])
+        yield from map(lambda k: (k, self[k]), self.keys())
 
     # TODO getNode refactor & purify keys/values/items
-    def prefixSearch(self, prefix: List[str], _prec=[]):
+    def prefixSearch(self, prefix: List[str]):
         """
         yields all keys with prefix.\n
         _prec is for internal use
         """
-        if prefix == []:
-            # prefix exhasuted, match all
-            yield from self.keys(_prec)
-        else:
-            try:
-                # prefix not exhausted, traverse further
-                chld = self.children[prefix[0]]
-                yield from chld.prefixSearch(prefix[1:], [*_prec, self.ch])
-            except KeyError:
-                yield None
+        try:
+            node = self.getNode(prefix)
+            yield from map(lambda x: prefix + x, node.keys())
+        except KeyError:
+            yield None
 
     def print(self, indent=""):
         if self.root:
@@ -199,7 +208,8 @@ if __name__ == "__main__":
         first: 1,
         Path("A/B/d"): '2',
         Path("A/f"): None,
-        Path("B/f"): 4
+        Path("B/f"): 4,
+        Path("C/D/e") : None
     }
 
     for p, v in paths.items():
@@ -210,3 +220,11 @@ if __name__ == "__main__":
     t.print()
     del t[first.parts]
     assert first.parts not in t
+
+    print("KEYS")
+    for k in t:
+        print(k)
+
+    print("PREFIX")
+    for k in t.prefixSearch(['A']):
+        print(k)
