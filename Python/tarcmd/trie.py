@@ -70,6 +70,9 @@ class Trie:
         self.children = {}
         self.value = None
 
+    def __repr__(self):
+        return f"Trie({', '.join(f'{k}: {v}' for k, v in self.items())}"
+
     def insert(self, strings: List[str], value=None):
         """
         Inserts value into trie at strings
@@ -123,14 +126,14 @@ class Trie:
             yield [self.ch]
 
         for chld in self.children.values():
-            yield from map(lambda x: [self.ch] + x, chld._genkeys())
+            yield from ([self.ch] + k for k in chld._genkeys())
 
     def keys(self):
         """
         yields all keys
         """
         # BUG cheated to avoid rekeying
-        yield from map(lambda x: x[1:], self._genkeys())
+        yield from (k[1:] for k in self._genkeys())
 
     def values(self):
         """
@@ -146,7 +149,7 @@ class Trie:
         """
         yields all key,value pairs
         """
-        yield from map(lambda k: (k, self[k]), self.keys())
+        yield from ((k, self[k]) for k in self.keys())
 
     # TODO getNode refactor & purify keys/values/items
     def prefixSearch(self, prefix: List[str]):
@@ -155,7 +158,7 @@ class Trie:
         """
         try:
             node = self.getNode(prefix)
-            yield from map(lambda x: prefix + x, node.keys())
+            yield from (prefix + k for k in node.keys())
         except KeyError:
             yield None
 
@@ -217,6 +220,7 @@ if __name__ == "__main__":
     print(f"{first.parts} in t => {first.parts in t}")
     assert first.parts in t
     t.print()
+    print(t)
     del t[first.parts]
     assert first.parts not in t
 

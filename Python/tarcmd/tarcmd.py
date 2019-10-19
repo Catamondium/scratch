@@ -83,6 +83,7 @@ class Tarcmd(Cmd):
         with tf.open(target) as f:
             for info in f:
                 self.tree[info.name.split('/')] = info
+        self.postcmd()
 
     @lexed
     def do_mount(self, target: Path):
