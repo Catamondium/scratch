@@ -135,6 +135,7 @@ class Trie:
         for chld in self.children.values():
             yield from chld.items([*_prec, self.ch])
 
+    # TODO getNode refactor & purify keys/values/items
     def prefixSearch(self, prefix: List[str], _prec=[]):
         """
         yields all keys with prefix.\n
