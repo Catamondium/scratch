@@ -221,3 +221,5 @@ if __name__ == "__main__":
 
     print(f"{first.parts} in t => {first.parts in t}")
     t.print()
+    del t[first.parts]
+    assert first.parts not in t
