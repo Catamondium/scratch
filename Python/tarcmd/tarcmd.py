@@ -111,7 +111,7 @@ class Tarcmd(Cmd):
         print(f"SYS: {spath} : {type(spath)}")
         print(f"*rs: {rest} : {type(rest)}, {type(rest[0])}")
 
-    # @perr("Process interrupted")
+    @perr("Process interrupted")
     @lexed
     def do_openin(self, command: str, *tars: Tuple[(TPath, ...)]):
         """
