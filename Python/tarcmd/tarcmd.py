@@ -137,6 +137,14 @@ class Tarcmd(Cmd):
         print(f"pwd: {self.pwd}")
         self.tree.print()
 
+    def do_shell(self, *args):
+        """
+        Run command in Bash subshell
+        """
+        status = os.system(*args)
+        if status != 0:
+            print(f"Shell exited w/ status {status}")
+
     def postcmd(self, *args):
         self.prompt = f"{self.environ['pwd']} {self.postfix}"
 

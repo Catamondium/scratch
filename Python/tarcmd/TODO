@@ -10,13 +10,14 @@ parsing:
 'real' effects:
     delegate parsing to shell
     [] cd
-    [] shell runs
+    [x] shell runs
 
 operations:
+    [x] Opening files/dirs 'readonly'
     [] multiple files, append?
     [] perms: chown, chmod, chgrp(?)
     [] editing: edit, mv, rm, add
-    [] lazy TemporaryDirectory?
+    [x] lazy TemporaryDirectory?
     might get complicated tracking changes
     [] heterogenous trie values?
 
