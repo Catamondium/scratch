@@ -4,67 +4,29 @@ from cmd import Cmd
 from pathlib import Path
 from typing import Tuple, List
 from trie import Trie, TPath
-from copy import deepcopy
-from functools import wraps
-from inspect import signature, Parameter, _empty
-from shlex import split as shsplit
-from itertools import islice
+from subprocess import run
 import sys
 import os
+from tempfile import TemporaryDirectory
+from cmdext import *
 
 
-def perr(msg: str = "An error occured"):
-    """
-    Prints string when an exception occurs, passes exception
-    """
-    def outer(f):
-        @wraps(f)
-        def deco(*args, **kwargs):
-            try:
-                return f(*args, **kwargs)
-            except:
-                print(msg)
-        return deco
-    return outer
+class LazyTmpDir:
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self.ret = None
 
+    def __call__(self) -> TemporaryDirectory:
+        if self.ret is None:
+            self.ret = TemporaryDirectory(*self.args, **self.kwargs)
+            return self.ret
+        else:
+            return self.ret
 
-def lexed(f):
-    """
-    apropos: allows method do_* = f, to be written as a normal method
-    instead of f(self, line)
-
-    Cmd do_* lexing decorator
-    tokenizes input line, then constructs according to annotations
-    the result is passed onto method 'f'
-    ignores surplus arguments post-tokenization
-    """
-    sig = signature(f)
-    @wraps(f)
-    def deco(obj, line):
-        toks = shsplit(line)[::-1]
-        args = ()
-        for name, param in sig.parameters.items():
-            if name == 'self':
-                # Exclude obj, handled eariler
-                continue
-
-            if param.kind == Parameter.POSITIONAL_ONLY:
-                args += (param.annotation(toks.pop()),)
-            elif param.kind == Parameter.POSITIONAL_OR_KEYWORD:
-                if toks:
-                    args += (param.annotation(toks.pop()),)
-                else:
-                    args += (param.default,)
-            elif param.kind == Parameter.VAR_POSITIONAL:
-                def ctor(x): return x
-                if param.annotation.__name__ == 'Tuple':
-                    # Ellipsis varargs
-                    ctor = param.annotation.__args__[0]
-                elif param.annotation != _empty:
-                    ctor = param.annotation
-                args += tuple(map(ctor, toks[::-1]))
-        return f(obj, *args)
-    return deco
+    def cleanup(self):
+        if self.ret:
+            self.ret.cleanup()
 
 
 class Tarcmd(Cmd):
@@ -75,6 +37,7 @@ class Tarcmd(Cmd):
 
     environ = dict()
     pwd = []
+    tmp = LazyTmpDir(prefix='Tarcmd-')
 
     def mount(self, target: Path):
         """Mount a new tar archive"""
@@ -85,6 +48,26 @@ class Tarcmd(Cmd):
                 self.tree[info.name.split('/')] = info
         self.postcmd()
 
+    def extract(self, prefix: TPath) -> Path:
+        rtmp = self.tmp()
+        tpath = Path(rtmp.name)
+        entry = prefix.parts(self.pwd)
+        with tf.open(self.environ['file']) as f:
+            submembers = self.tree.prefixSearch(entry)
+            stuff = ((self.tree[sm], tpath / Path('/'.join(sm)))
+                     for sm in submembers)
+            for subentry, path in stuff:
+                fobj = f.extractfile(subentry)
+                if fobj is None:
+                    continue
+                os.makedirs(path.parent, exist_ok=True)
+                with open(path, mode='w+b') as target:
+                    target.writelines(fobj.readlines())
+        return tpath / Path('/'.join(entry))
+
+    def cleanup(self):
+        self.tmp.cleanup()
+
     @lexed
     def do_mount(self, target: Path):
         """Mount a new tar archive"""
@@ -93,7 +76,7 @@ class Tarcmd(Cmd):
     @lexed
     def do_ls(self, path: TPath = TPath('.')):
         """List members"""
-        solved = path.parts(deepcopy(self.pwd))
+        solved = path.parts(self.pwd)
         p = Path('/'.join(solved or []))
         n = None
         try:
@@ -117,7 +100,7 @@ class Tarcmd(Cmd):
     @lexed
     def do_cd(self, path: TPath = TPath('.')):
         """Change working directory"""
-        npwd = path.parts(deepcopy(self.pwd))
+        npwd = path.parts(self.pwd)
         self.pwd = npwd
         self.environ['pwd'] = '/' + '/'.join(npwd)
 
@@ -128,13 +111,27 @@ class Tarcmd(Cmd):
         print(f"SYS: {spath} : {type(spath)}")
         print(f"*rs: {rest} : {type(rest)}, {type(rest[0])}")
 
+    # @perr("Process interrupted")
+    @lexed
+    def do_openin(self, command: str, *tars: Tuple[(TPath, ...)]):
+        """
+        openin command [tars, ...]
+        run command *tars
+        tars are temporarily extracted
+        """
+        rcmd = (command,)
+        for t in tars:
+            rcmd += (str(self.extract(t)),)
+        run(rcmd)
+
     def do_exit(self, *args):
         """Exit tarcmd"""
+        self.cleanup()
         sys.exit()
 
     def do_quit(self, *args):
         """Exit tarcmd"""
-        sys.exit()
+        self.do_exit()
 
     def do_debug(self, *args):
         print(f"pwd: {self.pwd}")

@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""
+Cmd library extensions
+"""
+
+
+def perr(msg: str = "An error occured"):
+    """
+    Prints string when an exception occurs, passes exception
+    """
+    from functools import wraps
+
+    def outer(f):
+        @wraps(f)
+        def deco(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except:
+                print(msg)
+        return deco
+    return outer
+
+
+def lexed(f):
+    """
+    apropos: allows method do_* = f, to be written as a normal method
+    instead of f(self, line)
+
+    Cmd do_* lexing decorator
+    tokenizes input line, then constructs according to annotations
+    the result is passed onto method 'f'
+    ignores surplus arguments post-tokenization
+    """
+    from functools import wraps
+    from inspect import signature, Parameter, _empty
+    import shlex
+
+    sig = signature(f)
+    @wraps(f)
+    def deco(obj, line):
+        toks = shlex.split(line)[::-1]
+        args = ()
+        for name, param in sig.parameters.items():
+            if name == 'self':
+                # Exclude obj, handled eariler
+                continue
+
+            if param.kind == Parameter.POSITIONAL_ONLY:
+                args += (param.annotation(toks.pop()),)
+            elif param.kind == Parameter.POSITIONAL_OR_KEYWORD:
+                if toks:
+                    args += (param.annotation(toks.pop()),)
+                else:
+                    args += (param.default,)
+            elif param.kind == Parameter.VAR_POSITIONAL:
+                def ctor(x): return x
+                if param.annotation.__name__ == 'Tuple':
+                    # Ellipsis varargs
+                    ctor = param.annotation.__args__[0]
+                elif param.annotation != _empty:
+                    ctor = param.annotation
+                args += tuple(map(ctor, toks[::-1]))
+        return f(obj, *args)
+    return deco

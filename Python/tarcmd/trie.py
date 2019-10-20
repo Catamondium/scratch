@@ -2,6 +2,7 @@
 from typing import List, Optional as Maybe
 from pathlib import Path
 from collections.abc import Mapping
+from copy import deepcopy
 
 
 class TPath:
@@ -24,12 +25,19 @@ class TPath:
         else:
             return f"TPath(\'{self._unsolved}\')"
 
+    def __str__(self):
+        if self.solved:
+            return '/'.join(self.solved)
+        else:
+            return ''
+
     def parts(self, pwd) -> Maybe[List[str]]:
+        cpwd = deepcopy(pwd)
         if self.solved:
             return self.solved
 
         if not self._unsolved or self._unsolved == '.':
-            return pwd
+            return cpwd
 
         p = Path(self._unsolved)
         parts = [*p.parts]
@@ -40,7 +48,7 @@ class TPath:
             if origin in ('~', '/'):
                 parts = parts[1:]
             else:
-                resolved = pwd
+                resolved = cpwd
         except IndexError:
             pass
 
@@ -152,13 +160,14 @@ class Trie(Mapping):
         """
         yield from ((k, self[k]) for k in self.keys())
 
-    # TODO getNode refactor & purify keys/values/items
     def prefixSearch(self, prefix: List[str]):
         """
         yields all keys with prefix
         """
+        from copy import deepcopy
         try:
-            node = self.getNode(prefix)
+
+            node = self.getNode(deepcopy(prefix))
             yield from (prefix + k for k in node.keys())
         except KeyError:
             yield None
@@ -218,9 +227,10 @@ if __name__ == "__main__":
     t = Trie()
     assert isinstance(t, Mapping)
     first = Path("A/B/C")
+    second = Path("A/B/d")
     paths = {
         first: 1,
-        Path("A/B/d"): '2',
+        second: '2',
         Path("A/f"): None,
         Path("B/f"): 4,
         Path("C/D/e"): None
@@ -241,6 +251,9 @@ if __name__ == "__main__":
     for k in t:
         print(k)
 
+    print("PREFIX_SINGLE")
+    for k in t.prefixSearch(list(second.parts)):
+        print(k)
     print("PREFIX")
     for k in t.prefixSearch(['A']):
         print(k)
