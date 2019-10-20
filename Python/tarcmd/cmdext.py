@@ -3,6 +3,8 @@
 Cmd library extensions
 """
 
+from inspect import signature, Parameter, _empty
+
 
 def perr(msg: str = "An error occured"):
     """
@@ -19,6 +21,19 @@ def perr(msg: str = "An error occured"):
                 print(msg)
         return deco
     return outer
+
+
+def lextype(param: Parameter) -> callable:
+
+    if param.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD):
+        return param.annotation
+    elif param.kind == Parameter.VAR_POSITIONAL and param.annotation != _empty:
+        if param.annotation.__name__ == 'Tuple':
+            # Ellipsis varargs
+            return param.annotation.__args__[0]
+        else:
+            return param.annotation
+    return lambda x: x
 
 
 def lexed(f):
@@ -53,12 +68,7 @@ def lexed(f):
                 else:
                     args += (param.default,)
             elif param.kind == Parameter.VAR_POSITIONAL:
-                def ctor(x): return x
-                if param.annotation.__name__ == 'Tuple':
-                    # Ellipsis varargs
-                    ctor = param.annotation.__args__[0]
-                elif param.annotation != _empty:
-                    ctor = param.annotation
+                ctor = lextype(param)
                 args += tuple(map(ctor, toks[::-1]))
         return f(obj, *args)
     return deco

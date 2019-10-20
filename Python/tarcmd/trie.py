@@ -128,6 +128,11 @@ class Trie(Mapping):
             self.value = None
         else:
             raise KeyError
+    
+    def allchildren(self):
+        yield [self.ch]
+        for chld in self.children.values():
+            yield from ([self.ch] + k for k in chld.allchildren())
 
     def _genkeys(self):
         # FIXME I shouldn't be needed

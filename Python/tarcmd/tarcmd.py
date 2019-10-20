@@ -78,18 +78,19 @@ class Tarcmd(Cmd):
         """List members"""
         solved = path.parts(self.pwd)
         p = Path('/'.join(solved or []))
-        n = None
         try:
             n = self.tree.getNode(solved)
-
-            results = [n, *n.children.values()]
-            results = [(i.value.name, i.value) for i in results if i.isLeaf]
-
-            for r, _ in sorted(results, key=lambda t: t[0]):
-                relative = Path(r).relative_to(p)
+            results = [n.ch] + [x for x in n.children]
+            for r in sorted(x for x in results if x != []):
+                try:
+                    relative = Path(r).relative_to(p)
+                except ValueError:
+                    relative = Path(r)
+                if str(relative) == n.ch:
+                    continue
                 print(str(relative))
-        except:
-            print(f"No such path: {n or str(path)}")
+        except KeyError:
+            print(f"No such path: {str(p)}")
 
     @lexed
     def do_env(self):
@@ -101,8 +102,11 @@ class Tarcmd(Cmd):
     def do_cd(self, path: TPath = TPath('.')):
         """Change working directory"""
         npwd = path.parts(self.pwd)
-        self.pwd = npwd
-        self.environ['pwd'] = '/' + '/'.join(npwd)
+        if npwd in self.tree:
+            self.pwd = npwd
+            self.environ['pwd'] = '/' + '/'.join(npwd)
+        else:
+            print("No such path")
 
     @perr("Invalid/Insufficient arguments")
     @lexed
@@ -123,6 +127,26 @@ class Tarcmd(Cmd):
         for t in tars:
             rcmd += (str(self.extract(t)),)
         run(rcmd)
+
+    # TODO completion
+    def completedefault(self, text, line, begidx, endidx):
+        import shlex
+        from inspect import signature, Parameter, _empty
+
+        # Part 1, context accumulation
+        command, *middle, subject = shlex.split(line)
+        method = getattr(self, 'do_' + command)
+        params = signature(method).parameters
+        nth = min(len(middle), len(params) - 1)
+        target = lextype(list(params.values())[nth])
+
+        # Part 2, Path/TPath expansion
+        if target == TPath:
+            prefix = '/'.join(TPath(subject).parts(self.pwd))
+            options = ('/'.join(k) for k in self.tree.keys())
+
+            return [x for x in options if x.startswith(prefix)]
+        return []
 
     def do_exit(self, *args):
         """Exit tarcmd"""
