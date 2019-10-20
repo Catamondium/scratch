@@ -11,6 +11,16 @@ from tempfile import TemporaryDirectory
 from cmdext import *
 
 
+def com_elide(a: str, b: str) -> str:
+    from itertools import dropwhile, zip_longest
+    from operator import add
+    from functools import reduce
+    pairs = ((x, y) for x, y in zip_longest(a, b))
+    tail = dropwhile(lambda x: x[0] == x[1], pairs)
+    side = 1 if len(a) < len(b) else 0
+    return reduce(add, (str(x[side]) for x in tail), '')
+
+
 class LazyTmpDir:
     def __init__(self, *args, **kwargs):
         self.args = args
@@ -144,8 +154,8 @@ class Tarcmd(Cmd):
         if target == TPath:
             prefix = '/'.join(TPath(subject).parts(self.pwd))
             options = ('/'.join(k) for k in self.tree.keys())
-
-            return [x for x in options if x.startswith(prefix)]
+            # FIXME
+            return [com_elide(prefix, x) for x in options if x.startswith(prefix)]
         return []
 
     def do_exit(self, *args):
