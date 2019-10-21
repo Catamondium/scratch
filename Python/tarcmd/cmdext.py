@@ -24,7 +24,9 @@ def perr(msg: str = "An error occured"):
 
 
 def lextype(param: Parameter) -> callable:
-
+    """
+    Capture type from Parameter param
+    """
     if param.kind in (Parameter.POSITIONAL_ONLY, Parameter.POSITIONAL_OR_KEYWORD):
         return param.annotation
     elif param.kind == Parameter.VAR_POSITIONAL and param.annotation != _empty:

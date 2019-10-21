@@ -8,10 +8,14 @@ from subprocess import run
 import sys
 import os
 from tempfile import TemporaryDirectory
-from cmdext import *
+from cmdext import lextype, lexed, perr
 
 
 def com_elide(a: str, b: str) -> str:
+    """
+    remove shortest from longest
+    so long as shortest prefixes longest
+    """
     from itertools import dropwhile, zip_longest
     from operator import add
     from functools import reduce
@@ -59,6 +63,11 @@ class Tarcmd(Cmd):
         self.postcmd()
 
     def extract(self, prefix: TPath) -> Path:
+        """
+        Recursively extract path prefix
+        into temporary directory\n
+        returns final tmpdir location corresponding to prefix
+        """
         rtmp = self.tmp()
         tpath = Path(rtmp.name)
         entry = prefix.parts(self.pwd)
@@ -76,6 +85,7 @@ class Tarcmd(Cmd):
         return tpath / Path('/'.join(entry))
 
     def cleanup(self):
+        """Clean up tmpdir"""
         self.tmp.cleanup()
 
     @lexed
@@ -90,14 +100,12 @@ class Tarcmd(Cmd):
         p = Path('/'.join(solved or []))
         try:
             n = self.tree.getNode(solved)
-            results = [n.ch] + [x for x in n.children]
+            results = [x for x in n.children]
             for r in sorted(x for x in results if x != []):
                 try:
                     relative = Path(r).relative_to(p)
                 except ValueError:
                     relative = Path(r)
-                if str(relative) == n.ch:
-                    continue
                 print(str(relative))
         except KeyError:
             print(f"No such path: {str(p)}")
@@ -154,7 +162,7 @@ class Tarcmd(Cmd):
         if target == TPath:
             prefix = '/'.join(TPath(subject).parts(self.pwd))
             options = ('/'.join(k) for k in self.tree.keys())
-            # FIXME
+            # FIXME readline fills inconsistenly
             return [com_elide(prefix, x) for x in options if x.startswith(prefix)]
         return []
 
