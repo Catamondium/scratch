@@ -19,7 +19,7 @@ trait Subject {
     fn notify(&self);
 }
 
-struct Button(i64, Vec<WkMut<dyn Observer>>);
+struct Button(u64, Vec<WkMut<dyn Observer>>);
 
 impl Button {
     fn new() -> Self {
@@ -31,7 +31,7 @@ impl Button {
         self.notify();
     }
 
-    fn value(&self) -> &i64 {
+    fn value(&self) -> &u64 {
         &self.0
     }
 
@@ -62,14 +62,14 @@ impl Subject for Button {
     }
 }
 
-struct Submitter(i64);
+struct Submitter(u64);
 
 impl Submitter {
     fn new() -> Self {
         Submitter(0)
     }
 
-    fn value(&self) -> &i64 {
+    fn value(&self) -> &u64 {
         &self.0
     }
 }
