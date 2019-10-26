@@ -1,8 +1,8 @@
 #![feature(weak_ptr_eq, weak_counts)]
 
+use std::cell::RefCell;
 use std::error::Error;
 use std::rc::{Rc, Weak};
-use std::cell::RefCell;
 
 type ShMut<T> = Rc<RefCell<T>>;
 type WkMut<T> = Weak<RefCell<T>>;
@@ -34,6 +34,10 @@ impl Button {
     fn value(&self) -> &i64 {
         &self.0
     }
+
+    fn watching(&self) -> usize {
+        self.1.len()
+    }
 }
 
 impl Subject for Button {
@@ -46,7 +50,7 @@ impl Subject for Button {
         let ptr = Rc::downgrade(ob);
         let v = &mut self.1;
 
-        v.retain(|item| item.ptr_eq(&ptr) && item.upgrade().is_some())
+        v.retain(|item| !item.ptr_eq(&ptr) && item.upgrade().is_some())
     }
 
     fn notify(&self) {
@@ -73,7 +77,7 @@ impl Submitter {
 impl Observer for Submitter {
     fn update(&mut self) {
         self.0 += 1;
-        println!("Submitter:\t{:p}\nPresses: {}", self, self.0)
+        println!("S {:p}\tN: {}", self, self.0)
     }
 }
 
@@ -81,19 +85,34 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut butt = Button::new();
 
     let mut observers = Vec::new();
-    for _ in 0..5 {
+    const P_GRP: usize = 5;
+    for _ in 0..P_GRP {
         let ptr: ShMut<dyn Observer> = Rc::new(RefCell::new(Submitter::new()));
         butt.attach(&ptr);
         observers.push(ptr);
     }
+
+    let test: ShMut<dyn Observer> = Rc::new(RefCell::new(Submitter::new()));
+    let wkptr = Rc::downgrade(&test);
+    butt.attach(&test);
     butt.press();
 
     {
         let ptr: ShMut<dyn Observer> = Rc::new(RefCell::new(Submitter::new()));
-        println!("Scoped: {:p}", &ptr);
+        println!("Scoped: {:p}", &Rc::downgrade(&ptr));
         butt.attach(&ptr);
         butt.press();
     }
+
+    // Scoped & test still referenciable
+    assert_eq!(butt.watching(), P_GRP + 2);
+
+    if let Some(rcptr) = wkptr.upgrade() {
+        butt.detach(&rcptr);
+    }
+
+    // Scoped & test eliminated
+    assert_eq!(butt.watching(), P_GRP);
 
     butt.press();
     println!("B Presses: {}", butt.value());
