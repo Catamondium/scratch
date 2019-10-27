@@ -1,7 +1,7 @@
 use countdown::*;
 use std::cell::RefCell;
 use std::default::Default;
-use std::io::{Result as IoResult, Write};
+use std::io::{sink, Result as IoResult, Write};
 use std::rc::Rc;
 use std::time::Duration;
 
@@ -92,21 +92,39 @@ fn ordering() {
     countdown(&mut opwrt, &mut opslp).unwrap();
 
     let want = Rc::new(RefCell::new(vec![
-        SLEEP_STR, WRITE_STR, SLEEP_STR, WRITE_STR, SLEEP_STR, WRITE_STR, SLEEP_STR, WRITE_STR,
+        SLEEP_STR, WRITE_STR, WRITE_STR, SLEEP_STR, WRITE_STR, WRITE_STR, SLEEP_STR, WRITE_STR,
+        WRITE_STR, SLEEP_STR, WRITE_STR,
     ]));
 
+    //let mut piecer = PieceSpy {calls: Default::default()};
+    //println!("Write trace");
+    //countdown(&mut piecer, &mut opslp);
+    //println!("{:?}", &piecer.calls);
+
     // 3 surplus calls
-    //assert_eq!(want, calls, "Bad ordering");
+    assert_eq!(want, calls, "Bad ordering");
 }
 
-//#[test] borrowing problems
-//fn configurable() {
-//    let duration = Duration::from_secs(5);
-//    let mut elapsed = RefCell::new(Duration::from_secs(0));
-//
-//    let spytime = |x| {
-//        *elapsed.borrow_mut() += x;
-//    };
-//
-//    let sleeper = ConfigSleeper {duration, method: Box::new(spytime)};
-//}
+static mut ELAPSED: Duration = Duration::from_secs(0);
+
+fn spytime(x: Duration) {
+    unsafe {
+        ELAPSED += x;
+    }
+}
+
+#[test]
+fn configurable() {
+    let duration = Duration::from_secs(1);
+
+    let mut sleeper = ConfigSleeper {
+        duration,
+        method: Box::new(spytime),
+    };
+
+    countdown(&mut sink(), &mut sleeper).unwrap();
+
+    unsafe {
+        assert_eq!(Duration::from_secs(4), ELAPSED, "Bad timing");
+    }
+}
