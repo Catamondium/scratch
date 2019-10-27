@@ -17,25 +17,28 @@ impl Sleeper for SpySleeper {
 }
 
 struct OpSleeper {
-    pub calls: Rc<RefCell<Vec<&'static str>>>,
+    pub calls: Rc<RefCell<Vec<Operation>>>,
 }
 
-const SLEEP_STR: &str = "sleep";
-const WRITE_STR: &str = "write";
+#[derive(Debug, Eq, PartialEq)]
+enum Operation {
+    Sleep,
+    Write,
+}
 
 impl Sleeper for OpSleeper {
     fn sleep(&self) {
-        self.calls.borrow_mut().push(SLEEP_STR)
+        self.calls.borrow_mut().push(Operation::Sleep)
     }
 }
 
 struct OpWriter {
-    pub calls: Rc<RefCell<Vec<&'static str>>>,
+    pub calls: Rc<RefCell<Vec<Operation>>>,
 }
 
 impl Write for OpWriter {
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
-        self.calls.borrow_mut().push(WRITE_STR);
+        self.calls.borrow_mut().push(Operation::Write);
         Ok(buf.len())
     }
 
@@ -43,18 +46,6 @@ impl Write for OpWriter {
         Ok(())
     }
 }
-
-// Would've been duration measuring mock
-// Thinking a static/closure will do just as well
-//struct SpyTime {
-//    sleeping_time: Duration
-//}
-//
-//impl Sleeper for SpyTime {
-//    fn sleep(&self) {
-//
-//    }
-//}
 
 #[test]
 fn printing() {
@@ -88,20 +79,22 @@ fn ordering() {
         calls: calls.clone(),
     };
 
-    // You'll panic, won't you!
     countdown(&mut opwrt, &mut opslp).unwrap();
 
     let want = Rc::new(RefCell::new(vec![
-        SLEEP_STR, WRITE_STR, WRITE_STR, SLEEP_STR, WRITE_STR, WRITE_STR, SLEEP_STR, WRITE_STR,
-        WRITE_STR, SLEEP_STR, WRITE_STR,
+        Operation::Sleep,
+        Operation::Write,
+        Operation::Write,
+        Operation::Sleep,
+        Operation::Write,
+        Operation::Write,
+        Operation::Sleep,
+        Operation::Write,
+        Operation::Write,
+        Operation::Sleep,
+        Operation::Write,
     ]));
 
-    //let mut piecer = PieceSpy {calls: Default::default()};
-    //println!("Write trace");
-    //countdown(&mut piecer, &mut opslp);
-    //println!("{:?}", &piecer.calls);
-
-    // 3 surplus calls
     assert_eq!(want, calls, "Bad ordering");
 }
 
