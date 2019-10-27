@@ -1,8 +1,9 @@
 use countdown::*;
 use std::cell::RefCell;
-use std::time::Duration;
-use std::iter::FromIterator;
+use std::default::Default;
 use std::io::{Result as IoResult, Write};
+use std::rc::Rc;
+use std::time::Duration;
 
 struct SpySleeper {
     // Interior mutability lets us observe immutable calls
@@ -15,19 +16,26 @@ impl Sleeper for SpySleeper {
     }
 }
 
-struct OperationSpy {
-    pub calls: RefCell<Vec<&'static str>>,
+struct OpSleeper {
+    pub calls: Rc<RefCell<Vec<&'static str>>>,
 }
 
-impl Sleeper for OperationSpy {
+const SLEEP_STR: &str = "sleep";
+const WRITE_STR: &str = "write";
+
+impl Sleeper for OpSleeper {
     fn sleep(&self) {
-        self.calls.borrow_mut().push("sleep")
+        self.calls.borrow_mut().push(SLEEP_STR)
     }
 }
 
-impl Write for OperationSpy {
+struct OpWriter {
+    pub calls: Rc<RefCell<Vec<&'static str>>>,
+}
+
+impl Write for OpWriter {
     fn write(&mut self, buf: &[u8]) -> IoResult<usize> {
-        self.calls.borrow_mut().push("write");
+        self.calls.borrow_mut().push(WRITE_STR);
         Ok(buf.len())
     }
 
@@ -44,16 +52,18 @@ impl Write for OperationSpy {
 //
 //impl Sleeper for SpyTime {
 //    fn sleep(&self) {
-//        
+//
 //    }
 //}
 
 #[test]
-fn correct_print() {
+fn printing() {
     let mut buffer = Vec::new();
-    let mut spy = SpySleeper {calls: RefCell::new(0)};
+    let mut spy = SpySleeper {
+        calls: Default::default(),
+    };
 
-    countdown(&mut buffer, &mut spy);
+    countdown(&mut buffer, &mut spy).unwrap();
 
     let got: String = buffer.iter().map(|&x| x as char).collect::<String>();
     let want = "3
@@ -61,5 +71,42 @@ fn correct_print() {
 1
 Go!";
 
-    assert_eq!(got, want, "Incorrect print")
+    assert_eq!(got, want, "Incorrect print");
+
+    assert_eq!(spy.calls.into_inner(), 4, "Too few sleeps");
 }
+
+#[test]
+fn ordering() {
+    let calls = Rc::new(RefCell::new(Vec::new()));
+
+    let mut opslp = OpSleeper {
+        calls: calls.clone(),
+    };
+
+    let mut opwrt = OpWriter {
+        calls: calls.clone(),
+    };
+
+    // You'll panic, won't you!
+    countdown(&mut opwrt, &mut opslp).unwrap();
+
+    let want = Rc::new(RefCell::new(vec![
+        SLEEP_STR, WRITE_STR, SLEEP_STR, WRITE_STR, SLEEP_STR, WRITE_STR, SLEEP_STR, WRITE_STR,
+    ]));
+
+    // 3 surplus calls
+    //assert_eq!(want, calls, "Bad ordering");
+}
+
+//#[test] borrowing problems
+//fn configurable() {
+//    let duration = Duration::from_secs(5);
+//    let mut elapsed = RefCell::new(Duration::from_secs(0));
+//
+//    let spytime = |x| {
+//        *elapsed.borrow_mut() += x;
+//    };
+//
+//    let sleeper = ConfigSleeper {duration, method: Box::new(spytime)};
+//}
