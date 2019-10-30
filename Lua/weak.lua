@@ -18,4 +18,5 @@ print(ttab['first'].c)
 
 ttab['first'] = {} -- A sieces use
 collectgarbage()
-for k,v in pairs(defaults) do print(k) end -- empty
+-- defaults is empty, A has no references
+for k,v in pairs(defaults) do print(k) end
