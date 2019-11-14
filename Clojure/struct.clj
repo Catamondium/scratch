@@ -14,3 +14,18 @@
  (Myobj. 555)
  (myprint)
  (println))
+
+(defn multiprinter [& printers]
+  (reify Printer
+    (myprint [_]
+      (->>
+       printers
+       (map myprint)
+       (interpose ", ")
+       (reduce str)
+       (format "multi[%s]")))))
+
+(->
+ (multiprinter (->Myobj "eub") (->Myobj 200))
+ (myprint)
+ (print))
