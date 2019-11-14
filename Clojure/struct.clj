@@ -9,7 +9,7 @@
 
 (defrecord Myobj [x]
   Printer ; interface list
-  (myprint [self] (format "Myobj(%s)" x))) ; method
+  (myprint [this] (format "Myobj(%s)" x))) ; method
 
 (defn multiprinter
   "Concatenating multiprinter, w/ ', ' separator"
