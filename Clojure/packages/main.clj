@@ -11,3 +11,5 @@
 
 (defn -main []
   (println "Hello world, the time is" (time-str (t/now))))
+
+(-main)
