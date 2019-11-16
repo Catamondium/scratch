@@ -1,31 +1,29 @@
 ; multimethod tests
-(defmulti add (fn [& more] (class (first more))))
+(defmulti sum (fn [& more] (class (first more))))
 
-(defmethod add :default
-  ;"Default 'add' multimethod"
+(defmethod sum :default
+  ;"Default addition multimethod"
   [& more]
   (println "DEFAULT")
   (apply clojure.core/+ more))
 
 (defrecord Time [^Integer hrs ^Integer mins])
 
-(defmethod add Time 
+(defn abs [^Time t]
+  (+ (:mins t) (* 60 (:hrs t))))
+
+(defmethod sum Time
   ;"Time addition multimethod"
   [& more]
   (println "TIME")
-  (apply ->Time ((juxt quot rem)
-                 (->> 
-                  more
-                  (map #(+ (:mins %1) (* 60 (:hrs %1))))
-                  (reduce +)) 60)))
+  (apply ->Time (->
+                 (transduce (map abs) sum more)
+                 ((juxt quot rem) 60))))
 
-(->
- [5 5 5]
- (apply add) ; despatched to :default
- (prn)
- )
+(assert (= 15 (sum 5 5 5)))
 
 (->>
  [(->Time 1 30) (->Time 0 30)]
- (apply add) ; despatched to add Time
- (prn))
+ (apply sum) ; despatched to sum Time
+ (= (->Time 2 0))
+ (assert))

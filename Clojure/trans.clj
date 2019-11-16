@@ -8,7 +8,7 @@
    [])
   ([f] ; Transducing format
    (fn [rf] ; The Transducer
-     (fn 
+     (fn
        ([] (rf)) ; init uninteresting
        ([result] ; reduced step
         (f result)
@@ -22,13 +22,9 @@
   [phase]
   (fn
     ([result]
-    (->>
-     [phase result]
-     (apply prn)))
+     (prn phase result))
     ([result input]
-     (->>
-      [phase result input]
-      (apply prn)))))
+     (prn phase result input))))
 
 (let [rf (comp
           (map inc)
@@ -36,7 +32,6 @@
           (filter even?)
           (tap (monitor "filter")))]
   (->>
-   (range 10)
-   (eduction rf)
-   (reduce +)
+   (range 8)
+   (transduce rf +)
    (println "FINAL")))
