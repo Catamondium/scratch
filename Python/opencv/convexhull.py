@@ -5,7 +5,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", action='store_false', help="disable rendering inner contours")
+parser.add_argument("-i", "--inner", action='store_false', help="disable rendering inner contours")
 parser.add_argument("--feed", "-f", type=int, nargs='?', help="source device", default=0)
 parser.add_argument("--thresh", "-t", type=int, nargs='?', help="Canny lower threshhold", default=100)
 
@@ -24,14 +24,14 @@ while True:
     contours, _ = cv.findContours(canny, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     hull_l = []
-    for i in range(len(contours)):
-        hull  = cv.convexHull(contours[i])
+    for contour in contours:
+        hull  = cv.convexHull(contour)
         hull_l.append(hull)
 
     drawing = np.zeros((*canny.shape[:2], 3), dtype=np.uint8)
     for i in range(len(contours)):
         col = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
-        if args.i:
+        if args.inner:
             cv.drawContours(drawing, contours, i, col)
         cv.drawContours(drawing, hull_l, i, col)
     cv.imshow('hull', drawing)
