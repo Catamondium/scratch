@@ -2,41 +2,44 @@
 import cv2 as cv
 import random as rng
 import numpy as np
-import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--inner", action='store_false', help="disable rendering inner contours")
-parser.add_argument("--feed", "-f", type=int, nargs='?', help="source device", default=0)
-parser.add_argument("--thresh", "-t", type=int, nargs='?', help="Canny lower threshhold", default=100)
+def _main(feedid = 0, threshhold = 100, use_inner = False):
+    rng.seed(12345)
+    threshhold = args.thresh
+    feed = cv.VideoCapture(feedid)
+    while True:
+        _, frame = feed.read()
+        cv.imshow('feed', frame)
 
-args = parser.parse_args()
+        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
-rng.seed(12345)
-threshhold = args.thresh
-feed = cv.VideoCapture(args.feed)
-while True:
-    ret, frame = feed.read()
-    cv.imshow('feed', frame)
+        edges = cv.Canny(gray, threshhold, 2 * threshhold)
+        contours, _ = cv.findContours(edges, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        hull_l = []
+        for contour in contours:
+            hull  = cv.convexHull(contour)
+            hull_l.append(hull)
 
-    canny = cv.Canny(gray, threshhold, 2 * threshhold)
-    contours, _ = cv.findContours(canny, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        drawing = np.zeros((*edges.shape[:2], 3), dtype=np.uint8)
+        for i, contour in enumerate(contours):
+            col = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
+            if use_inner:
+                cv.drawContours(drawing, [contour], -1, col)
+            cv.drawContours(drawing, hull_l, i, col)
+        cv.imshow('hull', drawing)
 
-    hull_l = []
-    for contour in contours:
-        hull  = cv.convexHull(contour)
-        hull_l.append(hull)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+    feed.release()
+    cv.destroyAllWindows()
 
-    drawing = np.zeros((*canny.shape[:2], 3), dtype=np.uint8)
-    for i in range(len(contours)):
-        col = (rng.randint(0, 256), rng.randint(0, 256), rng.randint(0, 256))
-        if args.inner:
-            cv.drawContours(drawing, contours, i, col)
-        cv.drawContours(drawing, hull_l, i, col)
-    cv.imshow('hull', drawing)
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--inner", action='store_false', help="disable rendering inner contours")
+    parser.add_argument("--feed", "-f", type=int, nargs='?', help="source device", default=0)
+    parser.add_argument("--thresh", "-t", type=int, nargs='?', help="Canny lower threshhold", default=100)
 
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break
-feed.release()
-cv.destroyAllWindows()
+    args = parser.parse_args()
+    _main(args.feed, args.thresh, args.inner)
