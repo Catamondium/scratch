@@ -47,7 +47,6 @@ def _main(target):
     contours, _ = cv.findContours(edges, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     drawing = np.zeros((*thresh.shape[:2], 3), dtype=np.uint8)
     for contour in contours:
-        #cv.drawContours(img, [contour], -1, (255, 255, 255), thickness=-1)
         shape = getpoly(contour)
         x,y,w,h = cv.boundingRect(shape)
         cv.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), thickness=2)
