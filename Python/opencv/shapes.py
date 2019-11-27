@@ -4,6 +4,16 @@ import random as rng
 import numpy as np
 from collections import defaultdict
 
+LABELS = defaultdict(lambda: circularHandler, [
+    (0, lambda *_: "<missing>"),
+    (1, lambda *_: "<missing>"),
+    (2, lambda *_: "<missing>"),
+    (3, lambda *_: "Triangle"),
+    (4, lambda *_: "Rect"),
+    (5, lambda *_: "Pentagon"),
+    (6, lambda *_: "Hexagon")
+])
+
 def standardWindow(name):
     cv.namedWindow(name, cv.WINDOW_NORMAL)
     cv.resizeWindow(name, 600, 600)
@@ -21,17 +31,7 @@ def circularHandler(shape, thresh):
     else:
         return "Circle"
 
-LABELS = defaultdict(lambda: circularHandler, [
-    (0, lambda *_: "<missing>"),
-    (1, lambda *_: "<missing>"),
-    (2, lambda *_: "<missing>"),
-    (3, lambda *_: "Triangle"),
-    (4, lambda *_: "Rect"),
-    (5, lambda *_: "Pentagon"),
-    (6, lambda *_: "Hexagon")
-])
-
-def identify(shape, thresh):
+def classify(shape, thresh):
     n = len(shape)
     return LABELS[n](shape, thresh)
 
@@ -51,7 +51,7 @@ def _main(target):
         x,y,w,h = cv.boundingRect(shape)
         cv.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), thickness=2)
 
-        text = identify(shape, thresh)
+        text = classify(shape, thresh)
         M = cv.moments(contour)
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
