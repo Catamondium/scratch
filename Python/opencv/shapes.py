@@ -56,6 +56,7 @@ def _main(target):
         M = cv.moments(contour)
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
+        cv.circle(img, (cx, cy), 2, (0, 0, 255), thickness=-1)
         cv.putText(img, text, (int(cx - (w/2)), cy), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2)
 
     standardWindow("shapes")
