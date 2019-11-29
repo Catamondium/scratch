@@ -35,9 +35,7 @@ def classify(shape, thresh):
     n = len(shape)
     return LABELS[n](shape, thresh)
 
-def _main(target):
-    poly = target
-    img = cv.imread(poly)
+def _main(img):
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     _, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
     # dialation helps smaller polygons
@@ -45,28 +43,31 @@ def _main(target):
     edges = cv.Canny(dialated, 1, 254)
 
     contours, _ = cv.findContours(edges, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    drawing = np.zeros((*thresh.shape[:2], 3), dtype=np.uint8)
+    drawing = img.copy()
     for contour in contours:
         shape = getpoly(contour)
         x,y,w,h = cv.boundingRect(shape)
-        cv.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), thickness=2)
+        cv.rectangle(drawing, (x, y), (x+w, y+h), (255, 0, 0), thickness=2)
 
         text = classify(shape, thresh)
         M = cv.moments(contour)
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
-        cv.circle(img, (cx, cy), 2, (0, 0, 255), thickness=-1)
-        cv.putText(img, text, (int(cx - (w/2)), cy), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2)
+        cv.circle(drawing, (cx, cy), 2, (0, 0, 255), thickness=-1)
+        cv.putText(drawing, text, (int(cx - (w/2)), cy), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), thickness=2)
 
-    standardWindow("shapes")
-    cv.imshow("shapes", img)
-
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    return drawing
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("target", nargs='?', default="./shapes_nocolor.jpg")
     args = parser.parse_args()
-    _main(args.target)
+
+    img = cv.imread(args.target)
+    overlayed = _main(img)
+
+    standardWindow("shapes")
+    cv.imshow("shapes", overlayed)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
