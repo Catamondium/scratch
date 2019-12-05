@@ -45,8 +45,8 @@ class LazyTmpDir:
 
 class Tarcmd(Cmd):
     intro = "Tar explorer shell"
-    postfix = "(Tar) > "
-    prompt = postfix
+    prefix = "(Tar) > "
+    prompt = prefix
     tree = Trie()
 
     environ = dict()
@@ -188,7 +188,7 @@ class Tarcmd(Cmd):
             print(f"Shell exited w/ status {status}")
 
     def postcmd(self, *args):
-        self.prompt = f"{self.environ['pwd']} {self.postfix}"
+        self.prompt = f"{self.environ['pwd']} {self.prefix}"
 
 
 if __name__ == "__main__":
