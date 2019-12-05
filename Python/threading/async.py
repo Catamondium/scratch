@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.7
 import asyncio
 from time import time
 from functools import wraps
