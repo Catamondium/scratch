@@ -1,6 +1,7 @@
-#!/usr/bin/perl6
+#!/usr/bin/env rakudo
 use strict;
 use worries;
+use v6;
 
 # quantity capabilities
 role Unitish[$unit= fail ("SI quantifier must be provided")] {

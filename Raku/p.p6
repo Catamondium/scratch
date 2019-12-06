@@ -1,5 +1,6 @@
-#!/usr/bin/perl6
+#!/usr/bin/env rakudo
 use strict;
+use v6;
 
 given "foo\n" {
 	.print;

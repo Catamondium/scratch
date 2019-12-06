@@ -1,6 +1,7 @@
-#!/usr/bin/perl6
+#!/usr/bin/env rakudo
 use strict;
 use worries;
+use v6;
 
 sub sFiles(@seq, Int $width) {
 	my &matcher = -> IO $f {
