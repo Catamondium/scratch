@@ -11,18 +11,21 @@ from tempfile import TemporaryDirectory
 from cmdext import lextype, lexed, perr
 
 
-def com_elide(a: str, b: str) -> str:
+def com_elide(a: str, b: str, toRight=True) -> str:
     """
-    remove shortest from longest
+    remove shortest from longest, Left to Right
     so long as shortest prefixes longest
     """
     from itertools import dropwhile, zip_longest
     from operator import add
     from functools import reduce
-    pairs = ((x, y) for x, y in zip_longest(a, b))
-    tail = dropwhile(lambda x: x[0] == x[1], pairs)
-    side = 1 if len(a) < len(b) else 0
-    return reduce(add, (str(x[side]) for x in tail), '')
+    if toRight:
+        pairs = ((x, y) for x, y in zip_longest(a, b))
+        tail = dropwhile(lambda x: x[0] == x[1], pairs)
+        side = 1 if len(a) < len(b) else 0
+        return reduce(add, (str(x[side]) for x in tail), '')
+    else:
+        return com_elide(a[::-1], b[::-1])[::-1]
 
 
 class LazyTmpDir:
@@ -162,8 +165,9 @@ class Tarcmd(Cmd):
         if target == TPath:
             prefix = '/'.join(TPath(subject).parts(self.pwd))
             options = ('/'.join(k) for k in self.tree.keys())
-            # FIXME readline fills inconsistenly
-            return [com_elide(prefix, x) for x in options if x.startswith(prefix)]
+            # BUG readline tries filling against separators
+            # Prefix elision can't help, only covering general case
+            return [com_elide(com_elide(prefix, subject, toRight=False), x) for x in options if x.startswith(prefix)]
         return []
 
     def do_exit(self, *args):
