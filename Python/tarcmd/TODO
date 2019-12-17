@@ -1,27 +1,31 @@
 
-parsing:
-    globbing support:
-        trie context:
-            [] fnmatch
-        'mixed' context:
-        during extractions, appends etc.
-        [x] decorator provides arity / 'types'?
-        [] glob.glob
 'real' effects:
     delegate parsing to shell
-    [] cd
+    [] !cd
     [x] shell runs
 
 operations:
     [x] Opening files/dirs 'readonly'
+    mass addition, possibly delayable
     [] multiple files, append?
-    [] perms: chown, chmod, chgrp(?)
-    [] editing: edit, mv, rm, add
+    [/] perms: chown, chmod, chgrp(?) circumventable
+    editing:
+        [/] edit // natural component?
+        immediate commit, requires metadata mutation
+        [] mv
+        also immediate commit
+        [] rm
+        delayable, but trackable like that?
+        [] add
     [x] lazy TemporaryDirectory?
     might get complicated tracking changes
+    could just, not do
     [] heterogenous trie values?
+        tracking adds?
+        'extract -> fetch' semantic change
 
-add:
-    [] create temporary; either duplicate name or extension preserving
-    [] load tmp into $EDITOR, overridable?
-    [] keep tmp until making changes, or commit to BytesIO/TarInfo?
+lets see if `TarFile.add` overwrites first
+//add:
+//    [] create temporary; either duplicate name or extension preserving
+//    [] load tmp into $EDITOR, overridable?
+//    [] keep tmp until making changes, or commit to BytesIO/TarInfo?

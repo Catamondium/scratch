@@ -38,6 +38,8 @@ class TPath:
 
         if not self._unsolved or self._unsolved == '.':
             return cpwd
+        elif self._unsolved == "..":
+            return cpwd[:-2]
 
         p = Path(self._unsolved)
         parts = [*p.parts]

@@ -60,6 +60,7 @@ class Tarcmd(Cmd):
         """Mount a new tar archive"""
         self.environ['file'] = target
         self.environ['pwd'] = '/'
+        self.pwd = []
         with tf.open(target) as f:
             for info in f:
                 self.tree[info.name.split('/')] = info
@@ -123,11 +124,14 @@ class Tarcmd(Cmd):
     def do_cd(self, path: TPath = TPath('.')):
         """Change working directory"""
         npwd = path.parts(self.pwd)
-        if npwd in self.tree:
+        if not npwd or npwd in self.tree:
             self.pwd = npwd
             self.environ['pwd'] = '/' + '/'.join(npwd)
         else:
             print("No such path")
+
+    def do_pwd(self, *args):
+        print(self.environ['pwd'])
 
     @perr("Invalid/Insufficient arguments")
     @lexed
@@ -149,7 +153,6 @@ class Tarcmd(Cmd):
             rcmd += (str(self.extract(t)),)
         run(rcmd)
 
-    # TODO completion
     def completedefault(self, text, line, begidx, endidx):
         import shlex
         from inspect import signature, Parameter, _empty
