@@ -84,8 +84,9 @@ class Tarcmd(Cmd):
                 if fobj is None:
                     continue
                 os.makedirs(path.parent, exist_ok=True)
-                with open(path, mode='w+b') as target:
-                    target.writelines(fobj.readlines())
+                if not path.exists() or os.path.getmtime(path) < subentry.mtime:
+                    with open(path, mode='w+b') as target:
+                        target.writelines(fobj.readlines())
         return tpath / Path('/'.join(entry))
 
     def cleanup(self):
