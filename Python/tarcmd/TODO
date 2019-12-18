@@ -1,7 +1,7 @@
 
 'real' effects:
     delegate parsing to shell
-    [] !cd
+    [x] !cd
     [x] shell runs
 
 operations:

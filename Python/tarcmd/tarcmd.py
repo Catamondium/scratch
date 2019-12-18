@@ -58,6 +58,7 @@ class Tarcmd(Cmd):
         """Mount a new tar archive"""
         self.environ['file'] = target
         self.environ['pwd'] = '/'
+        self.environ['cwd'] = str(os.getcwd())
         self.pwd = []
         with tf.open(target) as f:
             for info in f:
@@ -96,6 +97,17 @@ class Tarcmd(Cmd):
         """Mount a new tar archive"""
         self.mount(target)
 
+    @perr("Not a directory")
+    @lexed
+    def do_tcd(self, target: Path):
+        """Change tarcmd working directory"""
+        expanded = target.expanduser().resolve()
+        os.chdir(expanded)
+        self.environ['cwd'] = str(expanded)
+
+    def do_EOF(self, *args):
+        self.do_exit()
+
     @lexed
     def do_ls(self, path: TPath = TPath('.')):
         """List members"""
@@ -117,7 +129,7 @@ class Tarcmd(Cmd):
     def do_env(self):
         """List environment variables"""
         for k, v in self.environ.items():
-            print(f"{k} = {v}")
+            print(f"{k} = \'{v}\'")
 
     @lexed
     def do_cd(self, path: TPath = TPath('.')):
