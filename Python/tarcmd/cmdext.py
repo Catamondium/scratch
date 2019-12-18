@@ -49,8 +49,14 @@ def lexed(f):
     ignores surplus arguments post-tokenization
     """
     from functools import wraps
-    from inspect import signature, Parameter, _empty
+    from inspect import signature, Parameter, _empty, getmembers
     import shlex
+
+    if isinstance(f, type):
+        for n, obj in getmembers(f, callable):
+            if n.startswith("do_"):
+                setattr(f, n, lexed(obj))
+        return f
 
     sig = signature(f)
     @wraps(f)

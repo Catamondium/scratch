@@ -44,6 +44,7 @@ class LazyTmpDir:
             self.ret.cleanup()
 
 
+@lexed
 class Tarcmd(Cmd):
     intro = "Tar explorer shell"
     prefix = "(Tar) > "
@@ -92,13 +93,11 @@ class Tarcmd(Cmd):
         """Clean up tmpdir"""
         self.tmp.cleanup()
 
-    @lexed
     def do_mount(self, target: Path):
         """Mount a new tar archive"""
         self.mount(target)
 
     @perr("Not a directory")
-    @lexed
     def do_tcd(self, target: Path):
         """Change tarcmd working directory"""
         expanded = target.expanduser().resolve()
@@ -108,7 +107,6 @@ class Tarcmd(Cmd):
     def do_EOF(self, *args):
         self.do_exit()
 
-    @lexed
     def do_ls(self, path: TPath = TPath('.')):
         """List members"""
         solved = path.parts(self.pwd)
@@ -125,13 +123,11 @@ class Tarcmd(Cmd):
         except KeyError:
             print(f"No such path: {str(p)}")
 
-    @lexed
     def do_env(self):
         """List environment variables"""
         for k, v in self.environ.items():
             print(f"{k} = \'{v}\'")
 
-    @lexed
     def do_cd(self, path: TPath = TPath('.')):
         """Change working directory"""
         npwd = path.parts(self.pwd)
@@ -145,14 +141,12 @@ class Tarcmd(Cmd):
         print(self.environ['pwd'])
 
     @perr("Invalid/Insufficient arguments")
-    @lexed
     def do_lextest(self, tpath: TPath, spath: Path, *rest: Tuple[(int, ...)]):
         print(f"TAR: {tpath} : {type(tpath)}")
         print(f"SYS: {spath} : {type(spath)}")
         print(f"*rs: {rest} : {type(rest)}, {type(rest[0])}")
 
     @perr("Process interrupted")
-    @lexed
     def do_openin(self, command: str, *tars: Tuple[(TPath, ...)]):
         """
         openin command [tars, ...]
@@ -184,16 +178,16 @@ class Tarcmd(Cmd):
             return [com_elide(com_elide(prefix, subject, toRight=False), x) for x in options if x.startswith(prefix)]
         return []
 
-    def do_exit(self, *args):
+    def do_exit(self):
         """Exit tarcmd"""
         self.cleanup()
         sys.exit()
 
-    def do_quit(self, *args):
+    def do_quit(self):
         """Exit tarcmd"""
         self.do_exit()
 
-    def do_debug(self, *args):
+    def do_debug(self):
         print(f"pwd: {self.pwd}")
         self.tree.print()
 
