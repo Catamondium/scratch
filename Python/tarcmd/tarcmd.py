@@ -37,9 +37,7 @@ class LazyTmpDir:
     def __call__(self) -> TemporaryDirectory:
         if self.ret is None:
             self.ret = TemporaryDirectory(*self.args, **self.kwargs)
-            return self.ret
-        else:
-            return self.ret
+        return self.ret
 
     def cleanup(self):
         if self.ret:
