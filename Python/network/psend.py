@@ -6,8 +6,6 @@ from ctypes import c_ssize_t, sizeof
 from collections import namedtuple
 from pickle import loads, dumps
 
-rx, tx = socketpair()
-
 """
 Message format:
 <SIZE/TERM>[BODY]
@@ -19,12 +17,15 @@ BODY == pickled data, arbitrary size
 
 A = namedtuple("A", ["x", "y"])
 
+
 def f(x):
     return x * 2
 
+
+rx, tx = socketpair()
 pid = fork()
 if pid == 0:
-    del tx # child
+    del tx  # child
     while True:
         buf = rx.recv(sizeof(c_ssize_t))
         expected = c_ssize_t.from_buffer_copy(buf)
@@ -36,7 +37,7 @@ if pid == 0:
         print(f"<- {loads(jar)}[{expected.value}]")
 
 else:
-    del rx # parent
+    del rx  # parent
     # Can't send lambdas, must presumably share Decls with reciever
     data = [{"abc": 1, "def": 2}, A(255, 300), f]
     for datum in data:
