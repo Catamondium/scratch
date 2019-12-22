@@ -1,4 +1,4 @@
-#!bin/python3
+#!/usr/bin/envrun
 import cv2 as cv
 import random as rng
 import numpy as np
