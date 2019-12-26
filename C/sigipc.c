@@ -8,19 +8,21 @@
 
 volatile sig_atomic_t print_flag = false;
 
-void handle_alarm( int sig ) {
+void handle_alarm(int sig)
+{
     print_flag = true;
 }
 
-int main() {
-    signal( SIGALRM, handle_alarm ); // Install handler first,
-    alarm( 1 ); // before scheduling it to be called.
+int main()
+{
+    signal(SIGALRM, handle_alarm);	// Install handler first,
+    alarm(1);			// before scheduling it to be called.
 
     for (;;) {
-        if ( print_flag ) {
-            printf( "Hello\n" );
-            print_flag = false;
-            alarm( 1 );
-        }
+	if (print_flag) {
+	    printf("Hello\n");
+	    print_flag = false;
+	    alarm(1);
+	}
     }
 }
