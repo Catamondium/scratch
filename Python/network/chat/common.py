@@ -1,0 +1,1 @@
+ADDR = "/tmp/chat/sock"
