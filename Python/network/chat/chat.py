@@ -13,6 +13,8 @@ def iscmd(data) -> bool:
 
 async def reg_handler(nick, reader, writer):
     async with lock:
+        if nick in clients:
+            raise LookupError
         clients[nick] = (reader, writer)
 
 
@@ -20,26 +22,30 @@ async def othercast(nick, msg):
     async with lock:
         for n, (r, w) in clients.items():
             if n != nick:
-                w.write(msg.encode('utf-8'))
+                w.write(msg.encode(ENC))
 
 
 async def handler(reader: aio.StreamReader, writer: aio.StreamWriter):
     nickreg = await reader.readline()
-    nickreg = nickreg.decode('utf-8')
+    nickreg = nickreg.decode(ENC)
     if iscmd(nickreg):
         try:
-            stuff = nickreg.split(' ', maxsplit=1)
-            if stuff[0][1:] != 'register':
+            com, rawnick = nickreg.split(' ', maxsplit=1)
+            if com[1:] != 'register':
+                writer.write(b"[SERV] Failure to register.\n")
+                writer.close()
                 return
-            nick = stuff[1].strip()
+            nick = rawnick.strip()
             await reg_handler(nick, reader, writer)
             print(f"{nick} registered")
         except:
+            writer.write(b"[SERV] Bad registration.\n")
+            writer.close()
             return
 
     while True:
         msg = await reader.readline()
-        msg = msg.decode('utf-8')
+        msg = msg.decode(ENC)
         if not msg:
             print(f"{nick} left")
             break

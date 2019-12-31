@@ -7,13 +7,13 @@ from sys import argv
 
 async def main(nick, msg):
     reader, writer = await aio.open_unix_connection(ADDR)
-    writer.write(f"/register {nick}\n".encode('utf-8'))
-    writer.write(f"{msg}\n".encode('utf-8'))
+    writer.write(f"/register {nick}\n".encode(ENC))
+    writer.write(f"{msg}\n".encode(ENC))
     while True:
         msg = await reader.readline()
         if not msg:
             break
-        print(msg.decode('utf-8'), end='')
+        print(msg.decode(ENC), end='')
 
 nick = argv[1]
 msg = argv[2]
