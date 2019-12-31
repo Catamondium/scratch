@@ -6,18 +6,22 @@ from os import unlink
 lock = aio.Lock()
 clients = {}
 
+
 def iscmd(data) -> bool:
     return data[0] == '/'
+
 
 async def reg_handler(nick, reader, writer):
     async with lock:
         clients[nick] = (reader, writer)
+
 
 async def othercast(nick, msg):
     async with lock:
         for n, (r, w) in clients.items():
             if n != nick:
                 w.write(msg.encode('utf-8'))
+
 
 async def handler(reader: aio.StreamReader, writer: aio.StreamWriter):
     nickreg = await reader.readline()
@@ -43,10 +47,12 @@ async def handler(reader: aio.StreamReader, writer: aio.StreamWriter):
 
 
 async def main():
-    await aio.start_unix_server(handler, path=ADDR)
+    server = await aio.start_unix_server(handler, path=ADDR)
+    await server.wait_closed()
+
 try:
     unlink(ADDR)
-except:
+except FileNotFoundError:
     pass
 
 try:
@@ -55,3 +61,8 @@ try:
     loop.run_forever()
 except KeyboardInterrupt:
     print("Service stopped")
+finally:
+    for task in aio.Task.all_tasks():
+        task.cancel()
+    loop.run_until_complete(loop.shutdown_asyncgens())
+    loop.close()

@@ -1,1 +1,1 @@
-ADDR = "/tmp/chat/sock"
+ADDR = "/tmp/chatsock"
