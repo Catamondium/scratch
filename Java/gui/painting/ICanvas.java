@@ -22,7 +22,7 @@ class Oval {
     }
 
     public String toString() {
-        return "Oval(" + x + ", " + y + ")";
+        return String.format("Oval(x=%d, y=%d, r=%d)", x, y, radius);
     }
 
     public void draw(Graphics g) {
