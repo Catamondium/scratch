@@ -13,5 +13,4 @@ def prepare_db(db):
         def todict(self):
             return {'name': self.name, 'priority': self.priority}
 
-    # Nest 'Task' into 'Tables?'
-    return {'db': db, 'tasks': Task}
+    return Task

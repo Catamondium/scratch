@@ -5,16 +5,12 @@ tasks = Blueprint('tasks', __name__)
 
 @tasks.record  # on application reg
 def record(state):
-    db = state.app.config.get('tasks.db')
-
-    if db is None:
-        raise Exception(f"{__name__} blueprint expects \'tasks.db\'")
-    assert 'tasks' in db, f"{__name__} expects \'tasks\' in dict"
+    assert 'sqlalchemy' in state.app.extensions, "SQLAlchemy required"
 
 
 @tasks.route('/')
 def listall():
-    Task = current_app.config['tasks.db']['tasks']
+    Task = current_app.config['tasks.db']
     tasks = Task.query.order_by(Task.priority.desc()).all()
     return jsonify([x.todict() for x in tasks])
 
@@ -26,11 +22,12 @@ def single(task=None, priority=0):
         return make_response('Name required', 400)
 
     task = task.strip()
-    Task = current_app.config['tasks.db']['tasks']
-    session = current_app.config['tasks.db']['db'].session
+    Task = current_app.config['tasks.db']
+    session = current_app.extensions['sqlalchemy'].db.session
     if request.method == 'GET':  # fetch individual Task
         target = Task.query.filter_by(name=task).first_or_404()
         return jsonify({'status': 'SUCCESS', 'result': target.todict()})
+
     elif request.method == 'POST':  # make/update Task
         newtask = Task(name=task, priority=priority)
         existing = Task.query.filter_by(name=task).first()
@@ -38,6 +35,7 @@ def single(task=None, priority=0):
             session.delete(existing)
         session.add(newtask)
         session.commit()
+
     elif request.method == 'DELETE':
         existing = Task.query.filter_by(name=task).first_or_404()
         session.delete(existing)
