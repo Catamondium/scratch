@@ -18,29 +18,30 @@ def listall():
     return jsonify([x.todict() for x in tasks])
 
 
-@tasks.route('/<task>', methods=['GET', 'POST', 'DELETE'])
-@tasks.route('/<task>/<int:priority>', methods=['GET', 'POST', 'DELETE'])
-def single(task=None, priority=0):
-    if task is None or task.strip() == "":
+@tasks.route('/<name>', methods=['GET', 'POST', 'DELETE'])
+@tasks.route('/<name>/<int:priority>', methods=['GET', 'POST', 'DELETE'])
+def single(name="", priority=0):
+    name = name.strip()
+    if name == "":
         return make_response('Name required', 400)
 
-    task = task.strip()
-#    Task = current_app.config['tasks.db']
     session = current_app.extensions['sqlalchemy'].db.session
     if request.method == 'GET':  # fetch individual Task
-        target = Task.query.filter_by(name=task).first_or_404()
+        target = Task.query.filter_by(name=name).first_or_404()
         return jsonify({'status': 'SUCCESS', 'result': target.todict()})
 
     elif request.method == 'POST':  # make/update Task
-        newtask = Task(name=task, priority=priority)
-        existing = Task.query.filter_by(name=task).first()
-        if existing is not None:
-            session.delete(existing)
-        session.add(newtask)
+        existing = Task.query.filter_by(name=name).first()
+        if existing is None:
+            newtask = Task(name=name, priority=priority)
+            session.add(newtask)
+        else:
+            existing.name = name
+            existing.priority = priority
         session.commit()
 
     elif request.method == 'DELETE':
-        existing = Task.query.filter_by(name=task).first_or_404()
+        existing = Task.query.filter_by(name=name).first_or_404()
         session.delete(existing)
         session.commit()
 
