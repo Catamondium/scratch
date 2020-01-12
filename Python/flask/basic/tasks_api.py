@@ -36,7 +36,6 @@ def single(name="", priority=0):
             newtask = Task(name=name, priority=priority)
             session.add(newtask)
         else:
-            existing.name = name
             existing.priority = priority
         session.commit()
 
