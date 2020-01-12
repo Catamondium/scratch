@@ -1,4 +1,5 @@
-from flask import current_app, Blueprint, jsonify, request
+from flask import Response, current_app, Blueprint, jsonify, request
+from flask.views import MethodView
 
 tasks = Blueprint('tasks', __name__)
 
@@ -10,37 +11,42 @@ def record(state):
         # mass `global k; k = v` call
         globals()[k] = v
 
+class Taskapi(MethodView):
+    def get(self, *, name = None):
+        # full enumeration
+        if name is None or name.strip() == "":
+            tasks = Task.query.order_by(Task.priority.desc()).all()
+            return jsonify([x.todict() for x in tasks])
+        else: # individual fetch
+            task = Task.query.filter_by(name=name).first_or_404()
+            return jsonify(task.todict())
 
-@tasks.route('/')
-def listall():
-    tasks = Task.query.order_by(Task.priority.desc()).all()
-    return jsonify([x.todict() for x in tasks])
+    def post(self, *, name, priority = 0):
+        if name == "":
+            return response("Name required", 404)
 
-
-@tasks.route('/<name>', methods=['GET', 'POST', 'DELETE'])
-@tasks.route('/<name>/<int:priority>', methods=['GET', 'POST', 'DELETE'])
-def single(name="", priority=0):
-    name = name.strip()
-    if name == "":
-        return make_response('Name required', 400)
-
-    session = current_app.extensions['sqlalchemy'].db.session
-    if request.method == 'GET':  # fetch individual Task
-        target = Task.query.filter_by(name=name).first_or_404()
-        return jsonify({'status': 'SUCCESS', 'result': target.todict()})
-
-    elif request.method == 'POST':  # make/update Task
+        session = current_app.extensions['sqlalchemy'].db.session
         existing = Task.query.filter_by(name=name).first()
         if existing is None:
-            newtask = Task(name=name, priority=priority)
-            session.add(newtask)
+            session.add(Task(name, priority))
         else:
             existing.priority = priority
         session.commit()
+        return Response("OK", 200)
 
-    elif request.method == 'DELETE':
-        existing = Task.query.filter_by(name=name).first_or_404()
-        session.delete(existing)
+    def put(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
+    def delete(self, *, name):
+        session = current_app.extensions['sqlalchemy'].db.session
+        task = Task.query.filter_by(name=name).first_or_404()
+        session.delete(task)
         session.commit()
+        return Response("OK", 200)
 
-    return jsonify({'status': "SUCCESS"})
+
+view = Taskapi.as_view('taskapi')
+insert = ['POST', 'PUT']
+tasks.add_url_rule('/', view_func=view, methods=['GET'])
+tasks.add_url_rule('/<name>', view_func=view, methods=['GET', *insert, 'DELETE'])
+tasks.add_url_rule('/<name>/<priority>', view_func=view, methods=insert)

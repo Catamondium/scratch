@@ -1,5 +1,3 @@
-#!envrun
-
 from flask import Flask, jsonify, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 
