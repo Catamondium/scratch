@@ -13,7 +13,6 @@ def record(state):
 
 @tasks.route('/')
 def listall():
-#    Task = current_app.config['tasks.db']
     tasks = Task.query.order_by(Task.priority.desc()).all()
     return jsonify([x.todict() for x in tasks])
 
