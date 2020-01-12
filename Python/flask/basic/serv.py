@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from os import environ
 
-from dbsetup import prepare_db
+import models
 from tasks_api import tasks
 
 app = Flask(__name__)
@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 db = SQLAlchemy(app)
 
 # For blueprint use
-app.config['tasks.db'] = prepare_db(db)
+app.config['models'] = models.init(db)
 
 
 try:

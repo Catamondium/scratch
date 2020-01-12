@@ -1,4 +1,4 @@
-def prepare_db(db):
+def init(db):
     class Task(db.Model):
         name = db.Column(db.String(255), primary_key=True)
         priority = db.Column(db.Integer)
@@ -13,4 +13,5 @@ def prepare_db(db):
         def todict(self):
             return {'name': self.name, 'priority': self.priority}
 
-    return Task
+    flocals = locals().items() # Freeze locals
+    return {k: v for k, v in flocals if isinstance(v, type)}

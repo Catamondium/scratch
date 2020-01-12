@@ -6,8 +6,9 @@ tasks = Blueprint('tasks', __name__)
 @tasks.record  # on application reg
 def record(state):
     assert 'sqlalchemy' in state.app.extensions, "SQLAlchemy required"
-    global Task
-    Task = state.app.config['tasks.db']
+    for k,v in state.app.config['models'].items():
+        # mass `global k; k = v` call
+        globals()[k] = v
 
 
 @tasks.route('/')
