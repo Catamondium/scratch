@@ -41,16 +41,21 @@ def passover():
     return redirect(url_for('sum_route', args='2/2'))
 
 
-@app.route('/sum')
+@app.route('/sum/')
 @app.route('/sum/<path:args>')  # 'path' converter forms variadic route
 def sum_route(args=None):
     if args is None:
         return jsonify(result=0)
-    xs = [int(x) for x in args.split('/')]
+    xs = list([0])
+    for x in args.split('/'):
+        try:
+            xs.append(int(x))
+        except ValueError:
+            pass
     return jsonify(result=sum(xs))
 
 
-@app.route('/throw')
+@app.route('/throw/')
 @app.route('/throw/<dothrow>')  # <dothrow> parameter
 def _debug(dothrow='false'):
     assert dothrow.lower() == 'false', "You've thrown!"
