@@ -53,21 +53,6 @@ int evaluate(SExpression * e)
     }
 }
 
-<<<<<<< HEAD
-=======
-#define STR_S 3
-
-char *extend(char *indent)
-{
-    size_t size = strlen(indent) + 2 + STR_S;
-    char *new = malloc(sizeof(char) * size);
-    assert(new != NULL);
-    strcpy(new, indent);
-    strcat(indent, "  ");
-    return new;
-}
-
->>>>>>> 4ce725a920f77430240f2c6f74ee9df28fb54a15
 void recur(SExpression *e, char *op);
 
 void _plisp(SExpression * e, int outer)
