@@ -2007,7 +2007,7 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 #line 33 "Lexer.l"
 
 
-int yyerror(const char *msg) {
+static int yyerror(const char *msg) {
     fprintf(stderr, "Error: %s\n", msg);
     return 0;
 }

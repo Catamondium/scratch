@@ -32,7 +32,7 @@
 
 %%
 
-int yyerror(const char *msg) {
+static int yyerror(const char *msg) {
     fprintf(stderr, "Error: %s\n", msg);
     return 0;
 }

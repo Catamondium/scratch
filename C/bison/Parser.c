@@ -74,7 +74,7 @@
 #include "Parser.h"
 #include "Lexer.h"
 
-int yyerror(SExpression **expression, yyscan_t scanner, const char *msg) {
+static int yyerror(SExpression **expression, yyscan_t scanner, const char *msg) {
     /* Add error handling routine as needed */
 }
 

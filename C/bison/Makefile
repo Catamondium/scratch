@@ -1,12 +1,12 @@
 # Makefile
 
 FILES	= Lexer.c Parser.c Expression.c main.c
-CC	= g++
-CFLAGS	= -g -ansi
+CC	= gcc
+CFLAGS	= -g
 
-test: $(FILES)
-	$(CC) $(CFLAGS) $(FILES) -o test
-	./test
+a.out: $(FILES)
+	$(CC) $(CFLAGS) $(FILES)
+	./a.out
 
 Lexer.c: Lexer.l
 	flex Lexer.l
