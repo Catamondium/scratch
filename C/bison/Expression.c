@@ -13,7 +13,7 @@
  */
 static SExpression *allocateExpression()
 {
-    SExpression *b = (SExpression *)malloc(sizeof(SExpression));
+    SExpression *b = malloc(sizeof(SExpression));
 
     if (b == NULL)
         return NULL;
