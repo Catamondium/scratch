@@ -40,7 +40,8 @@ SExpression *createNumber(int value)
     return b;
 }
 
-SExpression *createOperation(EOperationType type, SExpression *left, SExpression *right)
+SExpression *createOperation(EOperationType type, SExpression * left,
+                             SExpression * right)
 {
     SExpression *b = allocateExpression();
 
@@ -54,7 +55,7 @@ SExpression *createOperation(EOperationType type, SExpression *left, SExpression
     return b;
 }
 
-void deleteExpression(SExpression *b)
+void deleteExpression(SExpression * b)
 {
     if (b == NULL)
         return;

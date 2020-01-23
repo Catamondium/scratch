@@ -20,15 +20,15 @@ SExpression *getAST(const char *expr)
     YY_BUFFER_STATE state;
 
     if (yylex_init(&scanner)) {
-	/* could not initialize */
-	return NULL;
+        /* could not initialize */
+        return NULL;
     }
 
     state = yy_scan_string(expr, scanner);
 
     if (yyparse(&expression, scanner)) {
-	/* error parsing */
-	return NULL;
+        /* error parsing */
+        return NULL;
     }
 
     yy_delete_buffer(state, scanner);
@@ -42,38 +42,38 @@ int evaluate(SExpression * e)
 {
     switch (e->type) {
     case eVALUE:
-	return e->value;
+        return e->value;
     case eMULTIPLY:
-	return evaluate(e->left) * evaluate(e->right);
+        return evaluate(e->left) * evaluate(e->right);
     case eADD:
-	return evaluate(e->left) + evaluate(e->right);
+        return evaluate(e->left) + evaluate(e->right);
     default:
-	/* should not be here */
-	return 0;
+        /* should not be here */
+        return 0;
     }
 }
 
-void recur(SExpression *e, char *op);
+void recur(SExpression * e, char *op);
 
 void _plisp(SExpression * e, int outer)
 {
     switch (e->type) {
     case eVALUE:
-	printf("%d", e->value);
-	break;
+        printf("%d", e->value);
+        break;
     case eADD:
-	recur(e, "+");
-	break;
+        recur(e, "+");
+        break;
     case eMULTIPLY:
-	recur(e, "*");
-	break;
+        recur(e, "*");
+        break;
     }
 
     if (outer)
-	putchar('\n');
+        putchar('\n');
 }
 
-void recur(SExpression *e, char *op)
+void recur(SExpression * e, char *op)
 {
     printf("(%s ", op);
     _plisp(e->left, 0);
@@ -82,7 +82,7 @@ void recur(SExpression *e, char *op)
     printf(")");
 }
 
-void plisp(SExpression *e)
+void plisp(SExpression * e)
 {
     _plisp(e, 1);
 }

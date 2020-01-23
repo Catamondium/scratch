@@ -3,9 +3,9 @@
 void check(int v)
 {
     if (v > 0)
-	printf("True %d\n", v);
+        printf("True %d\n", v);
     else
-	printf("False %d\n", v);
+        printf("False %d\n", v);
 }
 
 int main()

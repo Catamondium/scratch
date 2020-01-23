@@ -9,28 +9,28 @@ void step(enum states *state, int c)
 {
     // Automation step
     if (c == '\n') {
-	putchar('\n');
-	*state = before;
+        putchar('\n');
+        *state = before;
     } else
-	switch (*state) {
-	case before:
-	    if (c != ' ') {
-		putchar(c);
-		*state = inside;
-	    }
-	    break;
+        switch (*state) {
+        case before:
+            if (c != ' ') {
+                putchar(c);
+                *state = inside;
+            }
+            break;
 
-	case inside:
-	    if (c == ' ') {
-		*state = after;
-	    } else {
-		putchar(c);
-	    }
-	    break;
+        case inside:
+            if (c == ' ') {
+                *state = after;
+            } else {
+                putchar(c);
+            }
+            break;
 
-	case after:
-	    break;
-	}
+        case after:
+            break;
+        }
 }
 
 int main(void)
@@ -42,10 +42,10 @@ int main(void)
 
     int c;
     while ((c = getchar()) != EOF) {
-	step(&state, c);
+        step(&state, c);
     }
 
     if (state != before)
-	putchar('\n');
+        putchar('\n');
     return 0;
 }

@@ -9,7 +9,7 @@ const string phases[] = { "Init", "Cond", "Iter", "Body" };
 void mark(const string phase)
 {
     printf("FOR[%d]:\t%s\n%s", increment++, phase,
-	   strcmp(phase, phases[2]) ? "" : "\n");
+           strcmp(phase, phases[2]) ? "" : "\n");
     return;
 }
 
@@ -34,6 +34,6 @@ int iterate()
 int main()
 {
     for (int i = init(); condition(i); i += iterate()) {
-	mark("Body");
+        mark("Body");
     }
 }
