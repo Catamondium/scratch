@@ -7,20 +7,19 @@ typedef struct {
 } Vec;
 
 // Form providing alternative 'views'
-typedef struct {
-    union {
-	// see Vec
-	struct {
-	    int x, y;
-	};
-	// as seq of ints
-	int raw[2];
+typedef union {
+    // see Vec
+    struct {
+        int x, y;
     };
+    // as seq of ints
+    int raw[2];
 } VecUn;
 
 int main()
 {
     assert(sizeof(Vec) == 2 * sizeof(int));
+    assert(sizeof(VecUn) == 2 * sizeof(int));
     printf("Views example\n");
 
     VecUn v = {.x = 1,.y = 2 };
