@@ -10,9 +10,9 @@
 void onerr(int call, int line)
 {
     if (call == -1) {
-	perror("Error");
-	printf("line: %d\n", line);
-	exit(EXIT_FAILURE);
+        perror("Error");
+        printf("line: %d\n", line);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -30,13 +30,13 @@ int main(int argc, char const *argv[])
     struct stat statbuf;
     iferr(fstat(fd, &statbuf));
     char *cursor =
-	mmap(NULL, statbuf.st_size, PROT_WRITE, MAP_SHARED, fd, 0);
+    mmap(NULL, statbuf.st_size, PROT_WRITE, MAP_SHARED, fd, 0);
     iferr(close(fd));
     if (cursor == MAP_FAILED)
-	iferr(-1);
+        iferr(-1);
     printf("base: %p\n", cursor);
     for (size_t i = 0; i < statbuf.st_size; ++i)
-	cursor[i] = 'X';
+        cursor[i] = 'X';
     iferr(msync(cursor, statbuf.st_size, MS_SYNC));
     iferr(munmap(cursor, statbuf.st_size));
     iferr(system("cat file"));
