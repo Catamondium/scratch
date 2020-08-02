@@ -16,7 +16,7 @@ static SExpression *allocateExpression()
     SExpression *b = malloc(sizeof(SExpression));
 
     if (b == NULL)
-        return NULL;
+	return NULL;
 
     b->type = eVALUE;
     b->value = 0;
@@ -32,7 +32,7 @@ SExpression *createNumber(int value)
     SExpression *b = allocateExpression();
 
     if (b == NULL)
-        return NULL;
+	return NULL;
 
     b->type = eVALUE;
     b->value = value;
@@ -41,12 +41,12 @@ SExpression *createNumber(int value)
 }
 
 SExpression *createOperation(EOperationType type, SExpression * left,
-                             SExpression * right)
+			     SExpression * right)
 {
     SExpression *b = allocateExpression();
 
     if (b == NULL)
-        return NULL;
+	return NULL;
 
     b->type = type;
     b->left = left;
@@ -58,7 +58,7 @@ SExpression *createOperation(EOperationType type, SExpression * left,
 void deleteExpression(SExpression * b)
 {
     if (b == NULL)
-        return;
+	return;
 
     deleteExpression(b->left);
     deleteExpression(b->right);

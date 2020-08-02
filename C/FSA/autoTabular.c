@@ -7,8 +7,8 @@ enum states {
 };
 
 struct branch {
-    unsigned char new_state:2;  //BIT [1:0]
-    unsigned char should_putchar:1;     //BIT [2]
+    unsigned char new_state:2;	//BIT [1:0]
+    unsigned char should_putchar:1;	//BIT [2]
 };
 
 struct branch the_table[3][3] = {
@@ -26,7 +26,7 @@ void step(enum states *state, int c)
     struct branch *b = &the_table[*state][charCase];
     *state = (enum states) (b->new_state);
     if (b->should_putchar)
-        putchar(c);
+	putchar(c);
 }
 
 int main(void)
@@ -38,10 +38,10 @@ int main(void)
 
     int c;
     while ((c = getchar()) != EOF) {
-        step(&state, c);
+	step(&state, c);
     }
 
     if (state != before)
-        putchar('\n');
+	putchar('\n');
     return 0;
 }

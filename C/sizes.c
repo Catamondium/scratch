@@ -10,7 +10,7 @@ typedef struct {
 typedef union {
     // see Vec
     struct {
-        int x, y;
+	int x, y;
     };
     // as seq of ints
     int raw[2];

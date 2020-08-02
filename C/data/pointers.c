@@ -33,16 +33,16 @@ void Ords_maths(Ords v)
 {
     Ords vec = v;
     for (int i = 0; i < 4; i++) {
-        int val = maths[i] (vec.x, vec.y);
-        printf("Ords_maths[%s]:\t%+d\t*:%p\n", ops[i], val, maths[i]);
+	int val = maths[i] (vec.x, vec.y);
+	printf("Ords_maths[%s]:\t%+d\t*:%p\n", ops[i], val, maths[i]);
     }
 }
 
-typedef int (*doublemaths) (int, int);  // Simplify declaration
+typedef int (*doublemaths) (int, int);	// Simplify declaration
 
 void do_maths(doublemaths f)
 {
-    int val = (*f) (4, 2);      // Derefence and apply
+    int val = (*f) (4, 2);	// Derefence and apply
     printf("do_maths:\t\t%+d\t*:%p\n", val, f);
 }
 
@@ -50,8 +50,8 @@ int main()
 {
     Ords vec = {.x = 4,.y = 2 };
     Ords *pvec = &vec;
-    printf(".\t\t%+d\t%+d\n", vec.x, vec.y);    // direct access
-    printf("->\t\t%+d\t%+d\t*:%p\n\n", pvec->x, pvec->y, pvec); // -> indirect access
+    printf(".\t\t%+d\t%+d\n", vec.x, vec.y);	// direct access
+    printf("->\t\t%+d\t%+d\t*:%p\n\n", pvec->x, pvec->y, pvec);	// -> indirect access
     Ords_maths(vec);
     do_maths(sub);
 }

@@ -8,20 +8,20 @@ int main(int argc, char **argv)
     char *out;
 
     while ((c = getopt(argc, argv, "ao:")) != -1) {
-        switch (c) {
-        case 'a':
-            aflag = 1;
-            break;
-        case 'o':
-            out = optarg;
-            break;
-        }
+	switch (c) {
+	case 'a':
+	    aflag = 1;
+	    break;
+	case 'o':
+	    out = optarg;
+	    break;
+	}
     }
 
     if (optind < argc) {
-        printf("Opts:\ta:%d\tout:%s\nArgv:\t", aflag, out);
-        while (optind < argc)
-            printf("%s ", argv[optind++]);
-        printf("\n");
+	printf("Opts:\ta:%d\tout:%s\nArgv:\t", aflag, out);
+	while (optind < argc)
+	    printf("%s ", argv[optind++]);
+	printf("\n");
     }
 }

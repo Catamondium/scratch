@@ -15,14 +15,14 @@ void handle_alarm(int sig)
 
 int main()
 {
-    signal(SIGALRM, handle_alarm);      // Install handler first,
-    alarm(1);                   // before scheduling it to be called.
+    signal(SIGALRM, handle_alarm);	// Install handler first,
+    alarm(1);			// before scheduling it to be called.
 
     for (;;) {
-        if (print_flag) {
-            printf("Hello\n");
-            print_flag = false;
-            alarm(1);
-        }
+	if (print_flag) {
+	    printf("Hello\n");
+	    print_flag = false;
+	    alarm(1);
+	}
     }
 }
