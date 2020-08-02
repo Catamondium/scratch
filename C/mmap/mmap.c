@@ -6,13 +6,14 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#define iferr(call) do {\
-int err = call;\
-if (err == -1) {\
-perror("Error");\
-return EXIT_FAILURE;\
-}\
-} while (0)
+#define iferr(call) onerr(call, __LINE__)
+void onerr(int call, int line) {
+    if (call == -1) {
+    perror("Error");
+    printf("line: %d\n", line);
+    exit(EXIT_FAILURE);
+    }
+}
 
 int main(int argc, char const *argv[])
 {
